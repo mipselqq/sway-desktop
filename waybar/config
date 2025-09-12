@@ -1,0 +1,29 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "height": 10,
+    "modules-left": [ "sway/workspaces" ],
+    "modules-right": [ "clock", "tray", "sway/language", "cpu" ],
+
+    "clock": {
+        "format": "{:%H:%M:%S}",
+        "interval": 1
+    },
+    "tray": {
+        "spacing": 10
+    },
+    "sway/language": {
+        "format": "{}"
+    },
+    "cpu": {
+        "format": "blood temp: {temperature}°C",
+        "interval": 1
+    },
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "persistent_workspaces": {
+            "*": []
+        }
+    }
+}

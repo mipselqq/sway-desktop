@@ -1,0 +1,45 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "Inter", sans-serif;
+    font-weight: bold;
+    font-size: 13px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: black;
+    color: white;
+}
+
+#workspaces button {
+    padding: 0 5px;
+    color: #7f7f7f;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#workspaces button:hover {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+#workspaces button.focused {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#workspaces button.active {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#clock,
+#tray,
+#cpu,
+#language {
+    padding: 0 5px;
+}
+
