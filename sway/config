@@ -23,11 +23,9 @@ exec_always copyq
 exec_always gammastep -O $screen_temp
 
 exec_always {
+    exec_always gsettings set org.gnome.desktop.interface color-scheme prefer-dark
     exec_always gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-    exec_always gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-
-#    exec_always export QT_QPA_PLATFORMTHEME=qt5ct
-#    exec_always export QT_STYLE_OVERRIDE=Breeze
+    exec_always gsettings set org.gnome.desktop.interface enable-animations false
 }
 
 input type:pointer {
