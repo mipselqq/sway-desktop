@@ -1,4 +1,4 @@
-set $mod Mod1
+
 
 set $left j
 set $down k
@@ -18,6 +18,10 @@ gaps outer 0
 default_border pixel 0
 
 output * resolution $display1
+input * {
+    repeat_delay 150
+    repeat_rate 40
+}
 
 exec_always copyq
 exec_always gammastep -O $screen_temp
