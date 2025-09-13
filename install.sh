@@ -4,7 +4,7 @@ USER=lord
 HOME_DIR=/home/$USER
 SRC_DIR=$(pwd)
 
-pacman -S sway kitty wmenu copyq qt6ct gammastep brightnessctl grim slurp xdg-desktop-portal xdg-desktop-portal-wlr wl-clipboard waybar libsecret breeze --noconfirm --needed
+pacman -S sway kitty wmenu copyq qt6ct gammastep brightnessctl grim slurp libadwaita xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr wl-clipboard waybar libsecret breeze --noconfirm --needed
 
 rm -rf "$HOME_DIR/.config/sway"
 ln -s "$SRC_DIR/sway" "$HOME_DIR/.config/sway"
