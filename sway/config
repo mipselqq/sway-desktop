@@ -54,8 +54,8 @@ bindsym --to-code {
     $mod+d exec $menu
     $mod+Shift+c reload
     $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
-    $mod+u exec $explorer
-
+    $mod+f1 exec $explorer
+    $mod+f2 exec $explorer ~/Downloads
     $mod+$left focus left
     $mod+$down focus down
     $mod+$up focus up
