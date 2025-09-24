@@ -3,21 +3,24 @@
     "position": "bottom",
     "height": 10,
     "modules-left": [ "sway/workspaces" ],
-    "modules-right": [ "clock", "tray", "sway/language", "cpu" ],
+    "modules-right": [ "clock", "sway/language", "cpu", "battery", "pulseaudio", "tray" ],
 
     "clock": {
         "format": "{:%H:%M:%S}",
         "interval": 1
     },
-    "tray": {
-        "spacing": 10
-    },
     "sway/language": {
         "format": "{}"
     },
     "cpu": {
-        "format": "blood temp: {temperature}°C",
+        "format": "usg {usage}%",
         "interval": 1
+    },
+    "battery": {
+    	"format": "bat {capacity}%"
+    },
+    "tray": {
+        "spacing": 10
     },
     "sway/workspaces": {
         "disable-scroll": true,
@@ -25,5 +28,9 @@
         "persistent_workspaces": {
             "*": []
         }
+    },
+    "pulseaudio": {
+        "format": " vol {volume}%",
+	"interval": 1,
     }
 }
