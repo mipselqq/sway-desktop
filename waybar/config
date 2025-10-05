@@ -3,7 +3,7 @@
     "position": "bottom",
     "height": 10,
     "modules-left": [ "sway/workspaces" ],
-    "modules-right": [ "clock", "sway/language", "cpu", "battery", "pulseaudio", "tray" ],
+    "modules-right": [ "clock", "sway/language", "pulseaudio", "cpu", "memory", "battery", "tray" ],
 
     "clock": {
         "format": "{:%H:%M:%S}",
@@ -13,8 +13,12 @@
         "format": "{}"
     },
     "cpu": {
-        "format": "usg {usage}%",
+        "format": "cpu {usage}%",
         "interval": 1
+    },
+    "memory": {
+    	"format": "mem {avail}GB",
+	"interval": 1
     },
     "battery": {
     	"format": "bat {capacity}%"
@@ -34,3 +38,4 @@
 	"interval": 1,
     }
 }
+
