@@ -7,7 +7,7 @@ set $right Semicolon
 
 set $display1 '3440x1440@144Hz'
 set $term kitty
-set $menu rofi -show drun
+set $menu rofi -show drun -cache-dir ~/.cache/rofi -threads 8
 set $screen_temp 6000
 set $bar waybar
 set $explorer dolphin

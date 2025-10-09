@@ -1,9 +1,11 @@
 /*Dracula theme based on the Purple official rofi theme*/
 
 configuration {
-    show-icons:      true;
-    display-drun:    "";
+    show-icons: true;
+    display-drun: "";
     disable-history: false;
+    sort-weight: "usage";
+    cache-icons: true;
 }
 
 * {
@@ -17,27 +19,29 @@ configuration {
     selected-urgent-background: @urgent-background;
     selected-active-background: @active-background;
     separatorcolor: @active-background;
+    opacity: 0.5;
 }
 
 #window {
     width: 500px;
+    height: 300px;
     background-color: @background-color;
-    padding:          15;
+    padding: 15;
 }
 #mainbox {
     padding: 0;
 }
 #message {
-    padding:      1px;
+    padding: 1px;
 }
 #textbox {
     text-color: @foreground;
 }
 #listview {
     fixed-height: 0;
-    spacing:      2px ;
+    spacing:      2px;
     scrollbar:    false;
-    padding:      2px 0px 0px ;
+    padding:      2px 0px 0px;
 }
 #element {
     padding: 3px ;

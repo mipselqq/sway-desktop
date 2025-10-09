@@ -23,9 +23,6 @@
     "battery": {
     	"format": "bat {capacity}%"
     },
-    "tray": {
-        "spacing": 10
-    },
     "sway/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
