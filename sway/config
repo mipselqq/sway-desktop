@@ -7,7 +7,7 @@ set $right Semicolon
 
 set $display1 '3440x1440@144Hz'
 set $term kitty
-set $menu wmenu-run
+set $menu rofi -show drun
 set $screen_temp 6000
 set $bar waybar
 set $explorer dolphin
@@ -29,7 +29,7 @@ exec_always gammastep -O $screen_temp
 exec_always {
     gsettings set org.gnome.desktop.interface color-scheme prefer-dark
     gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-    exec_always gsettings set org.gnome.desktop.interface enable-animations false
+ays gsettings set org.gnome.desktop.interface enable-animations false
 }
 
 input type:pointer {
@@ -47,7 +47,7 @@ input type:keyboard {
     xkb_options grp:win_space_toggle
 }
 
-input type:touchpad  {
+input type:touchpad {
     scroll_factor 0.4
     tap enabled
 }

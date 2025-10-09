@@ -12,6 +12,9 @@ ln -s "$SRC_DIR/sway" "$HOME_DIR/.config/sway"
 rm -rf "$HOME_DIR/.config/waybar"
 ln -s "$SRC_DIR/waybar" "$HOME_DIR/.config/waybar"
 
+rm -rf "$HOME_DIR/.config/rofi"
+ln -s "$SRC_DIR/rofi" "$HOME_DIR/.config/rofi"
+
 rm -f "/usr/share/applications/google-chrome.desktop"
 ln -s "$SRC_DIR/google-chrome.desktop" "/usr/share/applications/google-chrome.desktop"
 
