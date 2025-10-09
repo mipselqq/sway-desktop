@@ -10,7 +10,7 @@
         "interval": 1
     },
     "sway/language": {
-        "format": "{}"
+        "format": "{}",
     },
     "cpu": {
         "format": "cpu {usage}%",
@@ -38,4 +38,3 @@
 	"interval": 1,
     }
 }
-

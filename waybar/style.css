@@ -1,4 +1,5 @@
 * {
+    padding: 0 5px;
     border: none;
     border-radius: 0;
     font-family: "Inter", sans-serif;
@@ -12,8 +13,11 @@ window#waybar {
     color: white;
 }
 
+#workspaces {
+    padding: 0px;
+}
+
 #workspaces button {
-    padding: 0 5px;
     color: #7f7f7f;
     background: transparent;
     border: none;
@@ -36,10 +40,11 @@ window#waybar {
     color: #ffffff;
 }
 
-#clock,
-#tray,
-#cpu,
-#language {
-    padding: 0 5px;
+#cpu {
+	padding: 0;
 }
 
+#language {
+	margin: 0;
+	padding-left: 11px;
+}
