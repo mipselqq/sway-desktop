@@ -73,28 +73,28 @@ ensure_yay_installed
 sudo -u "$USER" yay -Suy --noconfirm
 sudo -u "$USER" yay -Su --noconfirm --needed $CAT_ALL
 
-mkdir_ln_fs() {
+mkdir_ln_fsn() {
     local src_file_path=$1
     local dest_file_path=$2
     local dest_dir_path=$(dirname -- $dest_file_path)
 
     if [[ "$dest_dir_path" == "$HOME_DIR"* ]]; then
         sudo -u "$USER" mkdir -p "$dest_dir_path"
-	sudo -u "$USER" ln -fs "$src_file_path" "$dest_file_path"
+	sudo -u "$USER" ln -fsn "$src_file_path" "$dest_file_path"
     else
 	mkdir -p -- "$dest_dir_path"
-	ln -fs -- "$src_file_path" "$dest_file_path"
+	ln -fsn -- "$src_file_path" "$dest_file_path"
     fi
 }
 
 echo "INFO: linking configs"
-mkdir_ln_fs "$SRC_DIR/sway" "$HOME_DIR/.config/sway"
-mkdir_ln_fs "$SRC_DIR/waybar" "$HOME_DIR/.config/waybar"
-mkdir_ln_fs "$SRC_DIR/rofi" "$HOME_DIR/.config/rofi"
-mkdir_ln_fs "$SRC_DIR/shells/fish" "$HOME_DIR/.config/fish"
-mkdir_ln_fs "$SRC_DIR/desktops/google-chrome.desktop" "$HOME_DIR/.local/share/applications/google-chrome.desktop"
-mkdir_ln_fs "$SRC_DIR/desktops/sway/sway.desktop" "$HOME_DIR/.local/share/wayland-sessions/sway.desktop"
-mkdir_ln_fs "$SRC_DIR/units/clashd.service" "/etc/systemd/system/clashd.service"
+mkdir_ln_fsn "$SRC_DIR/sway" "$HOME_DIR/.config/sway"
+mkdir_ln_fsn "$SRC_DIR/waybar" "$HOME_DIR/.config/waybar"
+mkdir_ln_fsn "$SRC_DIR/rofi" "$HOME_DIR/.config/rofi"
+mkdir_ln_fsn "$SRC_DIR/shells/fish" "$HOME_DIR/.config/fish"
+mkdir_ln_fsn "$SRC_DIR/desktops/google-chrome.desktop" "$HOME_DIR/.local/share/applications/google-chrome.desktop"
+mkdir_ln_fsn "$SRC_DIR/desktops/sway/sway.desktop" "$HOME_DIR/.local/share/wayland-sessions/sway.desktop"
+mkdir_ln_fsn "$SRC_DIR/units/clashd.service" "/etc/systemd/system/clashd.service"
 
-echo "INFO: Done. Note you should install drivers ."
+echo "INFO: done. Note you should install drivers ."
 
