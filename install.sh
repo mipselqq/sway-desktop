@@ -1,31 +1,100 @@
-#!/bin/sh
+#!/bin/bash
 
-USER=lord
+set -e
+
+cleanup() {
+    rm -rf /tmp/yay
+}
+
+trap cleanup INT
+
+USER=$SUDO_USER
 HOME_DIR=/home/$USER
-SRC_DIR=$(pwd)
+SRC_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+COUNTRY_CODE="ru"
 
-pacman -S sway kitty wmenu copyq qt6ct gammastep brightnessctl fzf grim slurp libadwaita xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr wl-clipboard waybar libsecret breeze rofi htop fastfetch noto-fonts noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-dejavu ttf-roboto snapper --noconfirm --needed
+quit_if_not_sudo() {
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "ERR: This script must be run as sudo!" >&2
+	exit 1
+    fi
 
-if [ ! -f "/bin/yay" ]; then
-    sudo pacman -S --needed git base-devel
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -si
-    rm . -rf
-fi
+    if [ -z "$USER" ]; then
+        echo "ERR: This script must be run as sudo, not as root!" >&2
+	exit 1
+    fi
+}
+quit_if_not_sudo
 
-rm -rf "$HOME_DIR/.config/sway"
-ln -s "$SRC_DIR/sway" "$HOME_DIR/.config/sway"
+ensure_yay_installed() {
+    if ! command -v yay &> /dev/null; then
+	sudo -u "$USER" bash -c '
+	cd /tmp
+        git clone https://aur.archlinux.org/yay.git
+        cd yay
+        makepkg -si
+	'
+	rm -rf /tmp/yay
+    fi
+}
 
-rm -rf "$HOME_DIR/.config/waybar"
-ln -s "$SRC_DIR/waybar" "$HOME_DIR/.config/waybar"
+update_mirrorlist() {
+    echo "INFO: finding fastest mirrors for $COUNTRY_CODE"
+    reflector --fastest 3 --country $COUNTRY_CODE --download-timeout 2\
+	      --connection-timeout 2 --threads 3\
+	      --save /etc/pacman.d/mirrorlist
+}
 
-rm -rf "$HOME_DIR/.config/rofi"
-ln -s "$SRC_DIR/rofi" "$HOME_DIR/.config/rofi"
+CAT_DE="sway waybar kitty rofi copyq qt6ct gammastep grim slurp xdg-desktop-portal
+       xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr"
 
-rm -f "/usr/share/applications/google-chrome.desktop"
-ln -s "$SRC_DIR/google-chrome.desktop" "/usr/share/applications/google-chrome.desktop"
+CAT_APPS="telegram-desktop discord google-chrome clash-verge-rev-bin apidog-bin
+	 visual-studio-code-bin notof-fonts-extra"
 
-rm -f /usr/share/wayland-sessions/sway.desktop
-ln -s "$SRC_DIR/sway/sway.desktop" /usr/share/wayland-sessions/sway.desktop
+CAT_THEMING="qt6ct breeze libadwaita"
+CAT_UTILS="wl-clipboard fzf fastfetch htop"
+CAT_SHELL="fish fzf"
+CAT_BUILD="base-devel brightnessctl git"
+CAT_AUTH="libsecret"
+CAT_DEV="git docker docker-compose rustup nodejs npm neovim vim ripgrep"
+CAT_FONTS="noto-fonts noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-dejavu ttf-roboto"
+CAT_DURABILITY="snapper"
+CAT_VIRT="virt-manager qemu-desktop libvirt edk2-vmf dnsmasq iptables-nft"
+CAT_ARCHIEVES="tar 7zip unzip"
+CAT_MEDIA="pipwire pipewire-pulse aimp vlc"
+CAT_COMPAT="xorg-xwayland"
+
+CAT_ALL="$CAT_DE $CAT_THEMING $CAT_UTILS $CAT_SHELL $CAT_BUILD $CAT_AUTH $CAT_DEV $CAT_FONTS\
+	$CAT_DURABILITY $CAT_APPS $CAT_VIRT $CAT_ARCHIEVES $CAT_MEDIA $CAT_COMPAT"
+
+echo "INFO: installing packages"
+update_mirrorlist
+ensure_yay_installed
+sudo -u "$USER" yay -Suy --noconfirm
+sudo -u "$USER" yay -Su --noconfirm --needed $CAT_ALL
+
+mkdir_ln_fs() {
+    local src_file_path=$1
+    local dest_file_path=$2
+    local dest_dir_path=$(dirname -- $dest_file_path)
+
+    if [[ "$dest_dir_path" == "$HOME_DIR"* ]]; then
+        sudo -u "$USER" mkdir -p "$dest_dir_path"
+	sudo -u "$USER" ln -fs "$src_file_path" "$dest_file_path"
+    else
+	mkdir -p -- "$dest_dir_path"
+	ln -fs -- "$src_file_path" "$dest_file_path"
+    fi
+}
+
+echo "INFO: linking configs"
+mkdir_ln_fs "$SRC_DIR/sway" "$HOME_DIR/.config/sway"
+mkdir_ln_fs "$SRC_DIR/waybar" "$HOME_DIR/.config/waybar"
+mkdir_ln_fs "$SRC_DIR/rofi" "$HOME_DIR/.config/rofi"
+mkdir_ln_fs "$SRC_DIR/shells/fish" "$HOME_DIR/.config/fish"
+mkdir_ln_fs "$SRC_DIR/desktops/google-chrome.desktop" "$HOME_DIR/.local/share/applications/google-chrome.desktop"
+mkdir_ln_fs "$SRC_DIR/desktops/sway/sway.desktop" "$HOME_DIR/.local/share/wayland-sessions/sway.desktop"
+mkdir_ln_fs "$SRC_DIR/units/clashd.service" "/etc/systemd/system/clashd.service"
+
+echo "INFO: Done. Note you should install drivers ."
 
