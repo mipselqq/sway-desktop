@@ -48,7 +48,7 @@ update_mirrorlist() {
 CAT_DE="sway waybar kitty rofi copyq qt6ct gammastep grim slurp xdg-desktop-portal
        xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr"
 
-CAT_APPS="telegram-desktop discord google-chrome clash-verge-rev-bin apidog-bin
+CAT_APPS="telegram-desktop discord throne-bin apidog-bin
 	 
 CAT_THEMING="qt6ct breeze libadwaita"
 CAT_UTILS="wl-clipboard fzf fastfetch htop"
@@ -94,7 +94,7 @@ mkdir_ln_fsn "$SRC_DIR/shells/fish" "$HOME_DIR/.config/fish"
 mkdir_ln_fsn "$SRC_DIR/desktops/google-chrome.desktop" "$HOME_DIR/.local/share/applications/google-chrome.desktop"
 mkdir_ln_fsn "$SRC_DIR/desktops/sway/sway.desktop" "$HOME_DIR/.local/share/wayland-sessions/sway.desktop"
 mkdir_ln_fsn "$SRC_DIR/units/clashd.service" "/etc/systemd/system/clashd.service"
-
+mkdir_ln_fsn "$SRC_DIR/etc/fonts.conf" "/etc/fonts/fonts.conf"
 echo "INFO: enabling services"
 systemctl enable --now clashd
 
