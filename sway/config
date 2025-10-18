@@ -29,7 +29,7 @@ exec_always gammastep -O $screen_temp
 exec_always {
     gsettings set org.gnome.desktop.interface color-scheme prefer-dark
     gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-ays gsettings set org.gnome.desktop.interface enable-animations false
+    gsettings set org.gnome.desktop.interface enable-animations false
 }
 
 input type:pointer {
@@ -59,7 +59,7 @@ bindsym --to-code {
     $mod+q kill
     $mod+d exec $menu
     $mod+Shift+c reload
-    $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+    $mod+Shift+e swaymsg exit
     $mod+f1 exec $explorer
     $mod+f2 exec $explorer ~/Downloads
     $mod+p exec systemctl suspend
