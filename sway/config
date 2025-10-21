@@ -98,7 +98,7 @@ bindsym --to-code {
 
     $mod+b splith
     $mod+v splitv
-    $mod+s layout stacking
+    # $mod+s layout stacking
     $mod+w layout tabbed
     $mod+e layout toggle split
     $mod+f fullscreen
