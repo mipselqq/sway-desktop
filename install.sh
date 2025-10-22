@@ -45,7 +45,7 @@ update_mirrorlist() {
 	      --save /etc/pacman.d/mirrorlist
 }
 
-CAT_DE="sway waybar kitty rofi copyq qt6ct gammastep grim slurp xdg-desktop-portal
+CAT_DE="sway waybar kitty rofi copyq qt6ct gammastep grim slurp breeze-gtk xdg-desktop-portal
        xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr"
 
 CAT_APPS="qbittorrent firefox telegram-desktop discord throne-bin apidog-bin"
@@ -56,7 +56,7 @@ CAT_SHELL="fish fzf"
 CAT_BUILD="base-devel brightnessctl git"
 CAT_AUTH="libsecret"
 CAT_DEV="git docker docker-compose rustup nodejs npm neovim vim ripgrep visual-studio-code-bin tokei"
-CAT_FONTS="noto-fonts noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-dejavu ttf-roboto"
+CAT_FONTS="noto-fonts noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-dejavu ttf-roboto inter-font"
 CAT_DURABILITY="snapper"
 CAT_VIRT="virt-manager qemu-desktop libvirt edk2-vmf dnsmasq"
 CAT_ARCHIEVES="tar 7zip unzip"
