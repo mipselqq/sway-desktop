@@ -12,6 +12,7 @@ set $screen_temp 6000
 set $bar waybar
 set $explorer dolphin
 set $screenshot_command 'grim -t png -l 0 -g "`slurp`" - | wl-copy'
+set $browser firefox
 
 gaps inner 0
 gaps outer 0
@@ -61,6 +62,7 @@ bindsym --to-code {
     $mod+Shift+e swaymsg exit
     $mod+f1 exec $explorer
     $mod+f2 exec $explorer ~/Downloads
+    $mod+g exec $browser
     $mod+p exec systemctl suspend
     $mod+$left focus left
     $mod+$down focus down
