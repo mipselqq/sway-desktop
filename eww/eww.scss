@@ -1,0 +1,111 @@
+* {
+  all: unset;
+  font-family: "Inter", sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  min-height: 0;
+}
+
+window {
+  background-color: black;
+  color: white;
+}
+
+.cpu-box {
+  padding: 0;
+}
+
+.cpu-grad-0 { color: #2e4d2e; }
+.cpu-grad-1 { color: #3d663d; }
+.cpu-grad-2 { color: #4c804c; }
+.cpu-grad-3 { color: #5b995b; }
+.cpu-grad-4 { color: #6bb36b; }
+.cpu-grad-5 { color: #b3b36b; }
+.cpu-grad-6 { color: #b39a6b;     }
+.cpu-grad-7 { color: #b3806b; }
+.cpu-grad-8 { color: #b3666b; }
+.cpu-grad-9 { color: #b34d4d; }
+.cpu-grad-10 { color: #b32e2e; }
+
+.cpu-box label {
+  font-size: 13px;
+}
+
+.net-send-0 { color: #1f2a44; }
+.net-send-1 { color: #243255; }
+.net-send-2 { color: #293a66; }
+.net-send-3 { color: #2e4277; }
+.net-send-4 { color: #4d62b8; }
+.net-send-5 { color: #6175d8; }
+.net-send-6 { color: #7588ff; }
+.net-send-7 { color: #7f94ff; }
+.net-send-8 { color: #9ab0ff; }
+.net-send-9 { color: #b5c8ff; }
+.net-send-10 { color: #b8d4ff; }
+
+.net-recv-0 { color: #1a3d2e; }
+.net-recv-1 { color: #1f4d38; }
+.net-recv-2 { color: #245d42; }
+.net-recv-3 { color: #298d4c; }
+.net-recv-4 { color: #2ea856; }
+.net-recv-5 { color: #4acc7a; }
+.net-recv-6 { color: #5dd8a0; }
+.net-recv-7 { color: #6ee8b0; }
+.net-recv-8 { color: #88f0c0; }
+.net-recv-9 { color: #a0f8d0; }
+.net-recv-10 { color: #b0ffdd; }
+
+.disk-read-0 { color: #3a2e5a; }
+.disk-read-1 { color: #453070; }
+.disk-read-2 { color: #503286; }
+.disk-read-3 { color: #5c349c; }
+.disk-read-4 { color: #7040b8; }
+.disk-read-5 { color: #8440d8; }
+.disk-read-6 { color: #9d20f0; }
+.disk-read-7 { color: #b040f5; }
+.disk-read-8 { color: #c060f8; }
+.disk-read-9 { color: #d080fb; }
+.disk-read-10 { color: #e0a0ff; }
+
+.disk-write-0 { color: #4a2e6a; }
+.disk-write-1 { color: #5a3080; }
+.disk-write-2 { color: #6a3296; }
+.disk-write-3 { color: #7a34ac; }
+.disk-write-4 { color: #9040d8; }
+.disk-write-5 { color: #a840f0; }
+.disk-write-6 { color: #c020ff; }
+.disk-write-7 { color: #d040ff; }
+.disk-write-8 { color: #e060ff; }
+.disk-write-9 { color: #f080ff; }
+.disk-write-10 { color: #ffa0ff; }
+
+.workspaces button {
+  padding: 0 8px;
+  color: #7f7f7f;
+}
+.workspaces button.focused {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.systray {
+  min-height: 18px;
+}
+.systray image, .systray .tray-icon {
+  margin: 0 3px;
+}
+.metric.clock {
+  margin-right: 16px;
+}
+
+.metric.mem {
+  margin-right: 8px;
+}
+
+.metric.volume {
+  margin-right: 8px;
+}
+
+.modules-left {
+  padding: 0;
+}

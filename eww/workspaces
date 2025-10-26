@@ -1,0 +1,21 @@
+#!/bin/bash
+
+format_workspaces() {
+    jq -r '
+    sort_by(.num) |
+    map(
+        if .focused then
+            "(button :class \"focused\" :onclick \"swaymsg workspace number \(.num)\" \"\(.num)\")"
+        else
+            "(button :class \"unfocused\" :onclick \"swaymsg workspace number \(.num)\" \"\(.num)\")"
+        end
+    ) |
+    "(box :class \"workspaces\" :orientation \"h\" :spacing 0 :space-evenly false " + join("") + ")"
+    '
+}
+
+swaymsg -t get_workspaces | format_workspaces
+
+swaymsg -t subscribe -m '["workspace"]' | while read -r _; do
+    swaymsg -t get_workspaces | format_workspaces
+done

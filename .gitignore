@@ -1,0 +1,7 @@
+.cargo/
+.vscode/
+
+eww/polling-server/target/**
+!eww/polling-server/target/
+!eww/polling-server/target/release/
+!eww/polling-server/target/release/polling-server

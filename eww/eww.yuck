@@ -1,0 +1,74 @@
+(deflisten metrics "./polling-server/target/release/polling-server 500")
+(deflisten volume "./volume")
+(defpoll battery :interval "5s" "./battery")
+(deflisten layout  "./layout")
+(defpoll time :interval "1s" "./time")
+(defpoll battery_visible :interval "5s" "[ -n \"$(./battery)\" ] && echo true || echo false")
+(deflisten workspaces "./workspaces")
+
+(defwidget per_cpu [cores]
+  (box :orientation "h" :spacing -4 :space-evenly false
+    (for core in cores
+      (box :class "cpu-box cpu-grad-${round(core[1] / 10, 0)}"
+           (label :halign "center" :valign "center" :text "▌")))))
+
+(defwidget net_io [entries]
+  ;; Render receive/send columns per interface with blue tones
+  ;; Format: [iface, tx_level, rx_level, tx_mib_s, rx_mib_s]
+  (box :orientation "h" :spacing -4 :space-evenly false
+    (for entry in entries
+      (box :orientation "h" :spacing -4
+        (box :class "cpu-box net-recv-${entry[2]}"
+             (label :halign "center" :valign "center" :text "▌"
+                    :tooltip "${entry[0]} ↓ ${round(entry[4], 1)} MiB/s"))
+        (box :class "cpu-box net-send-${entry[1]}"
+             (label :halign "center" :valign "center" :text "▌"
+                    :tooltip "${entry[0]} ↑ ${round(entry[3], 1)} MiB/s"))))))
+
+(defwidget disk_io [entries]
+  ;; Render read/write columns per device with purple tones
+  ;; Format: [device, read_level, write_level, read_mib_s, write_mib_s]
+  (box :orientation "h" :spacing -4 :space-evenly false
+    (for entry in entries
+      (box :orientation "h" :spacing -4
+        (box :class "cpu-box disk-read-${entry[1]}"
+             (label :halign "center" :valign "center" :text "▌"
+                    :tooltip "${entry[0]} r ${round(entry[3], 1)} MiB/s"))
+        (box :class "cpu-box disk-write-${entry[2]}"
+             (label :halign "center" :valign "center" :text "▌"
+                    :tooltip "${entry[0]} w ${round(entry[4], 1)} MiB/s"))))))
+
+(defwidget mem_section [mem]
+  ;; Show memory usage label when stats available
+  ;; Format: [total_kib, available_kib, used_percent]
+  (box :visible mem
+    (label :text "${round(mem[1] / 1024, 0)}M" :class "metric mem"
+           :tooltip "Свободно: ${round(mem[1] / 1024 / 1024, 1)} GiB — Занято: ${round(mem[2], 1)}%")))
+
+(defwidget metrics_right []
+  ;; Aggregate all metrics on the right side
+  (box :class "modules-right" :halign "end" :spacing 4 :space-evenly false
+    (per_cpu :cores {metrics["c"]})
+    (net_io :entries {metrics["n"]})
+    (disk_io :entries {metrics["d"]})
+    (mem_section :mem {metrics["m"]})
+    (label :text "${volume}" :class "metric volume")
+    (label :text "${layout}" :class "metric lang")
+    (box :reveal battery_visible
+      (label :text "${battery}" :class "metric"))
+    (systray :class "systray")
+    (label :text "${time}" :class "metric clock")))
+
+(defwindow bar
+  :monitor 0
+  :geometry (geometry :x "0%" :y "0" :width "100%" :height "24px" :anchor "bottom center")
+  :stacking "fg" :layer "top" :exclusive true
+  
+  (centerbox :orientation "h"
+    (box :class "modules-left" :halign "start"
+      (literal :content workspaces))
+    
+    (box :class "modules-center" :halign "center")
+    
+    (metrics_right)
+  ))

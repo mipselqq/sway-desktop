@@ -1,9 +1,0 @@
-[Unit]
-Description=clash-verge-service as sudo
-
-[Service]
-ExecStart=sudo clash-verge-service
-
-[Install]
-WantedBy=multi-user.target
-

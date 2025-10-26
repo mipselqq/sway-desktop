@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Функция для вывода текущей раскладки
+show_layout() {
+    swaymsg -t get_inputs -r | jq -r '.[] | select(.type == "keyboard") | .xkb_active_layout_name' | head -n 1 | cut -c 1-2 | awk '{print tolower($0)}'
+}
+
+# Выводим раскладку при запуске
+show_layout
+
+# Подписываемся на события input (смена раскладки)
+swaymsg -t subscribe -m '["input"]' | while read -r _; do
+    show_layout
+done

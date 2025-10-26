@@ -9,8 +9,8 @@ cleanup() {
 trap cleanup INT
 
 USER=$SUDO_USER
-HOME_DIR=/home/$USER
-SRC_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+HD=/home/$USER
+SD=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 COUNTRY_CODE="ru"
 
 quit_if_not_sudo() {
@@ -45,10 +45,10 @@ update_mirrorlist() {
 	      --save /etc/pacman.d/mirrorlist
 }
 
-CAT_DE="sway waybar kitty rofi copyq qt6ct gammastep grim slurp xdg-desktop-portal
+CAT_DE="sway waybar kitty rofi copyq qt6ct gammastep geoclue grim slurp wayfreeze xdg-desktop-portal
        xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr"
 
-CAT_APPS="qbittorrent firefox telegram-desktop discord throne-bin apidog-bin"
+CAT_APPS="qbittorrent firefox telegram-desktop discord apidog-bin"
 	 
 CAT_THEMING="qt6ct breeze libadwaita"
 CAT_UTILS="wl-clipboard fzf fastfetch htop"
@@ -56,19 +56,24 @@ CAT_SHELL="fish fzf"
 CAT_BUILD="base-devel brightnessctl git"
 CAT_AUTH="libsecret"
 CAT_DEV="git docker docker-compose rustup nodejs npm neovim vim ripgrep visual-studio-code-bin tokei"
-CAT_FONTS="noto-fonts noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-dejavu ttf-roboto"
+CAT_FONTS="fontconfig freetype2 noto-fonts noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-dejavu ttf-roboto ttf-fira-code"
 CAT_DURABILITY="snapper"
 CAT_VIRT="virt-manager qemu-desktop libvirt edk2-vmf dnsmasq"
 CAT_ARCHIEVES="tar 7zip unzip"
 CAT_MEDIA="pipwire pipewire-pulse aimp vlc"
 CAT_COMPAT="xorg-xwayland"
-
+CAT_ANTIHUILO="zapret throne-bin"
 CAT_ALL="$CAT_DE $CAT_THEMING $CAT_UTILS $CAT_SHELL $CAT_BUILD $CAT_AUTH $CAT_DEV $CAT_FONTS\
-	$CAT_DURABILITY $CAT_APPS $CAT_VIRT $CAT_ARCHIEVES $CAT_MEDIA $CAT_COMPAT"
+	$CAT_DURABILITY $CAT_APPS $CAT_VIRT $CAT_ARCHIEVES $CAT_MEDIA $CAT_COMPAT $CAT_ANTIHUILO"
 
 echo "INFO: installing packages"
 update_mirrorlist
 ensure_yay_installed
+rustup default stable
+
+echo "INFO: removing conflicting packages"
+pacman -R --noconfirm kddockwidgets-qt6 2>/dev/null || true
+
 sudo -u "$USER" yay -Suy --noconfirm
 sudo -u "$USER" yay -Su --noconfirm --needed $CAT_ALL
 
@@ -77,7 +82,7 @@ mkdir_ln_fsn() {
     local dest_file_path=$2
     local dest_dir_path=$(dirname -- $dest_file_path)
 
-    if [[ "$dest_dir_path" == "$HOME_DIR"* ]]; then
+    if [[ "$dest_dir_path" == "$HD"* ]]; then
         sudo -u "$USER" mkdir -p "$dest_dir_path"
 	sudo -u "$USER" ln -fsn "$src_file_path" "$dest_file_path"
     else
@@ -86,19 +91,32 @@ mkdir_ln_fsn() {
     fi
 }
 
+echo "INFO: building stuff"
+cargo build --release --manifest-path "$SD/eww/polling-server/Cargo.toml"
+
 echo "INFO: linking configs"
-mkdir_ln_fsn "$SRC_DIR/sway" "$HOME_DIR/.config/sway"
-mkdir_ln_fsn "$SRC_DIR/waybar" "$HOME_DIR/.config/waybar"
-mkdir_ln_fsn "$SRC_DIR/rofi" "$HOME_DIR/.config/rofi"
-mkdir_ln_fsn "$SRC_DIR/shells/fish" "$HOME_DIR/.config/fish"
-mkdir_ln_fsn "$SRC_DIR/desktops/google-chrome.desktop" "$HOME_DIR/.local/share/applications/google-chrome.desktop"
-mkdir_ln_fsn "$SRC_DIR/desktops/sway/sway.desktop" "$HOME_DIR/.local/share/wayland-sessions/sway.desktop"
-mkdir_ln_fsn "$SRC_DIR/etc/fonts.conf" "/etc/fonts/fonts.conf"
+
+conf_map=(
+    "$SD/sway:$HD/.config/sway"
+    "$SD/eww:$HD/.config/eww"
+    "$SD/rofi:$HD/.config/rofi"
+    "$SD/shells/fish:$HD/.config/fish"
+    "$SD/etc/fonts.conf:/etc/fonts/fonts.conf"
+    "$SD/etc/oomd.conf:/etc/systemd/oomd.conf"
+    "$SD/desktops/sway.desktop:$HD/.local/share/wayland-sessions/sway.desktop"
+)
+
+for conf in "${conf_map[@]}"; do
+    src="${conf%:*}"
+    dest="${conf#*:}"
+    mkdir_ln_fsn "$src" "$dest"
+done
+
 echo "INFO: enabling services"
+systemctl enable --now systemd-oomd
 
 echo "INFO: switching shell"
 chsh root -s /bin/fish
 chsh lord -s /bin/fish
 
 echo "INFO: done. Note you should install drivers ."
-

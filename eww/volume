@@ -1,0 +1,17 @@
+#!/bin/bash
+
+show_volume() {
+    if pamixer --get-mute | grep -q true; then
+        echo "_"
+    else
+        echo "$(pamixer --get-volume)%"
+    fi
+}
+
+show_volume
+
+pactl subscribe | while read line; do
+    if echo "$line" | grep -qE "(sink|source)"; then
+        show_volume
+    fi
+done
