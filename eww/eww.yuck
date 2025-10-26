@@ -1,4 +1,4 @@
-(deflisten metrics "./polling-server/target/release/polling-server 500")
+(deflisten metrics "./polling-server/target/release/polling-server 200")
 (deflisten volume "./volume")
 (defpoll battery :interval "5s" "./battery")
 (deflisten layout  "./layout")
@@ -6,57 +6,48 @@
 (defpoll battery_visible :interval "5s" "[ -n \"$(./battery)\" ] && echo true || echo false")
 (deflisten workspaces "./workspaces")
 
-(defwidget per_cpu [cores]
-  (box :orientation "h" :spacing -4 :space-evenly false
-    (for core in cores
-      (box :class "cpu-box cpu-grad-${round(core[1] / 10, 0)}"
-           (label :halign "center" :valign "center" :text "▌")))))
+(defwidget metrics_bars [cores net_entries disk_entries mem]
+  ;; Monolithic widget for all bar metrics with per-character coloring
+  ;; Combines CPU, network, disk, and memory into single optimized widget
+  (box :orientation "h" :spacing 2 :space-evenly false :class "metrics-monolith"
+    ;; CPU cores section
+    (box :orientation "h" :spacing -3 :space-evenly false
+      (for core in cores
+        (label :class "metric-bar cpu-grad-${round(core[1] / 10, 0)}"
+               :text "▌")))
+    ;; Network interfaces section
+    (box :orientation "h" :spacing -3 :space-evenly false
+      (for entry in net_entries
+        (box :orientation "h" :spacing -3 :space-evenly false
+          (label :class "metric-bar net-recv-${entry[2]}"
+                 :text "▌"
+                 :tooltip "${entry[0]} ↓ ${round(entry[4], 1)} MiB/s")
+          (label :class "metric-bar net-send-${entry[1]}"
+                 :text "▌"
+                 :tooltip "${entry[0]} ↑ ${round(entry[3], 1)} MiB/s"))))
+    ;; Disk devices section
+    (box :orientation "h" :spacing -3 :space-evenly false
+      (for entry in disk_entries
+        (box :orientation "h" :spacing -3 :space-evenly false
+          (label :class "metric-bar disk-read-${entry[1]}"
+                 :text "▌"
+                 :tooltip "${entry[0]} r ${round(entry[3], 1)} MiB/s")
+          (label :class "metric-bar disk-write-${entry[2]}"
+                 :text "▌"
+                 :tooltip "${entry[0]} w ${round(entry[4], 1)} MiB/s"))))
+    ;; Memory section with counter and bar
+    (box :visible {length(mem) > 0} :orientation "h" :spacing 1 :space-evenly false
 
-(defwidget net_io [entries]
-  ;; Render receive/send columns per interface with blue tones
-  ;; Format: [iface, tx_level, rx_level, tx_mib_s, rx_mib_s]
-  (box :orientation "h" :spacing -4 :space-evenly false
-    (for entry in entries
-      (box :orientation "h" :spacing -4
-        (box :class "cpu-box net-recv-${entry[2]}"
-             (label :halign "center" :valign "center" :text "▌"
-                    :tooltip "${entry[0]} ↓ ${round(entry[4], 1)} MiB/s"))
-        (box :class "cpu-box net-send-${entry[1]}"
-             (label :halign "center" :valign "center" :text "▌"
-                    :tooltip "${entry[0]} ↑ ${round(entry[3], 1)} MiB/s"))))))
-
-(defwidget disk_io [entries]
-  ;; Render read/write columns per device with purple tones
-  ;; Format: [device, read_level, write_level, read_mib_s, write_mib_s]
-  (box :orientation "h" :spacing -4 :space-evenly false
-    (for entry in entries
-      (box :orientation "h" :spacing -4
-        (box :class "cpu-box disk-read-${entry[1]}"
-             (label :halign "center" :valign "center" :text "▌"
-                    :tooltip "${entry[0]} r ${round(entry[3], 1)} MiB/s"))
-        (box :class "cpu-box disk-write-${entry[2]}"
-             (label :halign "center" :valign "center" :text "▌"
-                    :tooltip "${entry[0]} w ${round(entry[4], 1)} MiB/s"))))))
-
-(defwidget mem_section [mem]
-  ;; Show memory usage label when stats available
-  ;; Format: [total_kib, available_kib, used_percent]
-  (box :visible mem
-    (label :text "${round(mem[1] / 1024, 0)}M" :class "metric mem"
-           :tooltip "Свободно: ${round(mem[1] / 1024 / 1024, 1)} GiB — Занято: ${round(mem[2], 1)}%")))
+      (label :text "${round(mem[1] / 1024, 0)}" :class "metric mem-counter"))))
 
 (defwidget metrics_right []
   ;; Aggregate all metrics on the right side
-  (box :class "modules-right" :halign "end" :spacing 4 :space-evenly false
-    (per_cpu :cores {metrics["c"]})
-    (net_io :entries {metrics["n"]})
-    (disk_io :entries {metrics["d"]})
-    (mem_section :mem {metrics["m"]})
+  (box :class "modules-right" :halign "end" :spacing 2 :space-evenly false
+    (metrics_bars :cores {metrics["c"]} :net_entries {metrics["n"]} :disk_entries {metrics["d"]} :mem {metrics["m"]})
     (button :onclick "pavucontrol &"
       (label :text "${volume}" :class "metric volume"))
     (label :text "${layout}" :class "metric lang")
-    (box :reveal battery_visible
-      (label :text "${battery}" :class "metric"))
+    (label :text "${battery}%" :class "metric battery" :visible battery_visible)
     (systray :class "systray" :icon-size 20)
     (label :text "${time}" :class "metric clock")))
 

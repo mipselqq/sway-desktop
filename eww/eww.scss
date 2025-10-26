@@ -15,6 +15,15 @@ window {
   padding: 0;
 }
 
+.metric-bar {
+  padding: 0;
+  font-size: 13px;
+}
+
+.metrics-monolith {
+  margin-right: 4px;
+}
+
 .cpu-grad-0 { color: #2e4d2e; }
 .cpu-grad-1 { color: #3d663d; }
 .cpu-grad-2 { color: #4c804c; }
@@ -102,9 +111,26 @@ window {
   margin-right: 8px;
 }
 
+.metric.mem-counter {
+  margin-right: 4px;
+  font-size: 13px;
+}
+
 .metric.volume {
   margin-right: 8px;
 }
+
+.mem-bar-0 { color: #1a3d2e; }
+.mem-bar-1 { color: #1f4d38; }
+.mem-bar-2 { color: #245d42; }
+.mem-bar-3 { color: #298d4c; }
+.mem-bar-4 { color: #2ea856; }
+.mem-bar-5 { color: #4acc7a; }
+.mem-bar-6 { color: #5dd8a0; }
+.mem-bar-7 { color: #6ee8b0; }
+.mem-bar-8 { color: #88f0c0; }
+.mem-bar-9 { color: #a0f8d0; }
+.mem-bar-10 { color: #b0ffdd; }
 
 .modules-left {
   padding: 0;
