@@ -52,11 +52,12 @@
     (net_io :entries {metrics["n"]})
     (disk_io :entries {metrics["d"]})
     (mem_section :mem {metrics["m"]})
-    (label :text "${volume}" :class "metric volume")
+    (button :onclick "pavucontrol &"
+      (label :text "${volume}" :class "metric volume"))
     (label :text "${layout}" :class "metric lang")
     (box :reveal battery_visible
       (label :text "${battery}" :class "metric"))
-    (systray :class "systray")
+    (systray :class "systray" :icon-size 20)
     (label :text "${time}" :class "metric clock")))
 
 (defwindow bar

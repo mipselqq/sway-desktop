@@ -6,4 +6,3 @@ end
 if status is-interactive
     set_bindings
 end
-
