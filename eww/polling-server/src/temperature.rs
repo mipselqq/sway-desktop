@@ -44,13 +44,29 @@ fn find_hwmon_temp() -> Option<PathBuf> {
     let mut hwmon_paths: Vec<_> = hwmon_entries.flatten().map(|e| e.path()).collect();
     hwmon_paths.sort();
     
+    // Helper: Collect available temp files in a hwmon directory (avoids repeated stat calls)
+    fn get_temp_files(hwmon_path: &Path) -> Vec<(u32, PathBuf)> {
+        let mut temps = Vec::new();
+        if let Ok(entries) = fs::read_dir(hwmon_path) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                    if name.starts_with("temp") && name.ends_with("_input") {
+                        // Extract temperature index from filename (e.g., "temp0_input" -> 0)
+                        if let Ok(idx) = name[4..].trim_end_matches("_input").parse::<u32>() {
+                            temps.push((idx, path));
+                        }
+                    }
+                }
+            }
+        }
+        temps.sort_by_key(|t| t.0);
+        temps
+    }
+    
     // First priority: Package/Tdie with label
     for hwmon_path in &hwmon_paths {
-        for temp_idx in 0..20 {
-            let temp_input = hwmon_path.join(format!("temp{}_input", temp_idx));
-            if !temp_input.exists() {
-                continue;
-            }
+        for (temp_idx, temp_input) in get_temp_files(hwmon_path) {
             if let Some(label) = get_temp_label(hwmon_path, temp_idx) {
                 if is_package_temp_label(&label) {
                     return Some(temp_input);
@@ -61,11 +77,7 @@ fn find_hwmon_temp() -> Option<PathBuf> {
     
     // Second priority: Any CPU-labeled temp
     for hwmon_path in &hwmon_paths {
-        for temp_idx in 0..20 {
-            let temp_input = hwmon_path.join(format!("temp{}_input", temp_idx));
-            if !temp_input.exists() {
-                continue;
-            }
+        for (temp_idx, temp_input) in get_temp_files(hwmon_path) {
             if let Some(label) = get_temp_label(hwmon_path, temp_idx) {
                 if is_cpu_temp_label(&label) {
                     return Some(temp_input);
@@ -76,11 +88,8 @@ fn find_hwmon_temp() -> Option<PathBuf> {
     
     // Third priority: Any temp file
     for hwmon_path in &hwmon_paths {
-        for temp_idx in 0..20 {
-            let temp_input = hwmon_path.join(format!("temp{}_input", temp_idx));
-            if temp_input.exists() {
-                return Some(temp_input);
-            }
+        if let Some((_, temp_input)) = get_temp_files(hwmon_path).first() {
+            return Some(temp_input.clone());
         }
     }
     
