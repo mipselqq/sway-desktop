@@ -1,6 +1,28 @@
 /// Network metrics collection
 use std::collections::HashMap;
-use crate::{NetCounters, NetworkEntry, NET_REF_BPS};
+use crate::{NetCounters, NetworkEntry, constants::RATE_DECAY_TIME_SECS};
+
+/// State tracking for network device rate limiting and validity
+#[derive(Clone, Copy)]
+pub struct NetworkDeviceState {
+    /// Maximum rate seen so far
+    pub max_rate: f64,
+    /// Time since last rate >= max_rate / 2
+    pub time_below_half_max: f64,
+    /// Whether this interface has ever had non-zero traffic
+    pub has_had_traffic: bool,
+}
+
+impl NetworkDeviceState {
+    /// Create new device state with initial max rate of 1.0
+    pub fn new() -> Self {
+        NetworkDeviceState {
+            max_rate: 1.0,
+            time_below_half_max: 0.0,
+            has_had_traffic: false,
+        }
+    }
+}
 
 /// Parse network interface counters from /proc/net/dev.
 /// Returns HashMap of interface names to (rx_bytes, tx_bytes).
@@ -94,6 +116,7 @@ pub fn calculate_network_rates(
     elapsed: f64,
     parsed: HashMap<&'static str, (u64, u64)>,
     prev: &mut HashMap<&'static str, NetCounters>,
+    max_rates: &mut HashMap<&'static str, NetworkDeviceState>,
     entries: &mut Vec<NetworkEntry>,
 ) {
     let elapsed = elapsed.max(1e-8);
@@ -114,13 +137,41 @@ pub fn calculate_network_rates(
         counters.rx = rx_bytes;
         counters.tx = tx_bytes;
         
-        entries.push(NetworkEntry {
-            iface: iface.to_string(),
-            tx_level: rate_to_level(tx_rate, NET_REF_BPS),
-            rx_level: rate_to_level(rx_rate, NET_REF_BPS),
-            tx_mib_s: tx_rate / 1_048_576.0,
-            rx_mib_s: rx_rate / 1_048_576.0,
-        });
+        // Update device state
+        let state = max_rates.entry(iface).or_insert(NetworkDeviceState::new());
+        let combined_rate = rx_rate.max(tx_rate);
+        
+        // Mark as having traffic if rate > 0
+        if combined_rate > 0.0 {
+            state.has_had_traffic = true;
+        }
+        
+        // Update maximum and track time below half
+        if combined_rate > state.max_rate {
+            state.max_rate = combined_rate;
+            state.time_below_half_max = 0.0;
+        } else if combined_rate < state.max_rate / 2.0 {
+            state.time_below_half_max += elapsed;
+        } else {
+            state.time_below_half_max = 0.0;
+        }
+        
+        // Reset max to half if below half for RATE_DECAY_TIME_SECS
+        if state.time_below_half_max >= RATE_DECAY_TIME_SECS {
+            state.max_rate /= 2.0;
+            state.time_below_half_max = 0.0;
+        }
+        
+        // Only add entry if interface has had traffic
+        if state.has_had_traffic {
+            entries.push(NetworkEntry {
+                iface: iface.to_string(),
+                tx_level: rate_to_level(tx_rate, state.max_rate),
+                rx_level: rate_to_level(rx_rate, state.max_rate),
+                tx_mib_s: tx_rate / 1_048_576.0,
+                rx_mib_s: rx_rate / 1_048_576.0,
+            });
+        }
     }
 }
 
@@ -244,24 +295,27 @@ mod tests {
 
     #[test]
     fn test_rate_to_level_zero() {
-        assert_eq!(rate_to_level(0.0, NET_REF_BPS), 0);
+        assert_eq!(rate_to_level(0.0, 125_000_000.0), 0);
     }
 
     #[test]
     fn test_rate_to_level_reference() {
-        let level = rate_to_level(NET_REF_BPS, NET_REF_BPS);
+        let reference = 125_000_000.0;
+        let level = rate_to_level(reference, reference);
         assert_eq!(level, 10);
     }
 
     #[test]
     fn test_rate_to_level_half() {
-        let level = rate_to_level(NET_REF_BPS / 2.0, NET_REF_BPS);
+        let reference = 125_000_000.0;
+        let level = rate_to_level(reference / 2.0, reference);
         assert_eq!(level, 5);
     }
 
     #[test]
     fn test_rate_to_level_over_reference() {
-        let level = rate_to_level(NET_REF_BPS * 2.0, NET_REF_BPS);
+        let reference = 125_000_000.0;
+        let level = rate_to_level(reference * 2.0, reference);
         assert_eq!(level, 10);
     }
 

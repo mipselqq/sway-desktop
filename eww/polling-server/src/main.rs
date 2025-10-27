@@ -12,11 +12,13 @@ mod cpu;
 mod memory;
 mod network;
 mod disk;
+mod constants;
 
 use cpu::collect_cpu;
 use memory::collect_memory;
-use network::{parse_network, calculate_network_rates};
-use disk::{parse_disks, calculate_disk_rates};
+use network::{parse_network, calculate_network_rates, NetworkDeviceState};
+use disk::{parse_disks, calculate_disk_rates, DiskDeviceState};
+use constants::*;
 
 /// Collect network statistics: parse and calculate rates.
 /// Wrapper for convenience - calls parse_network and calculate_network_rates.
@@ -25,10 +27,11 @@ fn collect_network(
     elapsed: f64,
     data: &[u8],
     prev: &mut HashMap<&'static str, NetCounters>,
+    max_rates: &mut HashMap<&'static str, NetworkDeviceState>,
     entries: &mut Vec<NetworkEntry>,
 ) {
     let parsed = parse_network(data);
-    calculate_network_rates(elapsed, parsed, prev, entries);
+    calculate_network_rates(elapsed, parsed, prev, max_rates, entries);
 }
 
 /// Collect disk statistics: parse and calculate rates.
@@ -38,10 +41,11 @@ fn collect_disks(
     elapsed: f64,
     data: &[u8],
     prev: &mut HashMap<&'static str, DiskCounters>,
+    max_rates: &mut HashMap<&'static str, DiskDeviceState>,
     entries: &mut Vec<DiskEntry>,
 ) {
     let parsed = parse_disks(data);
-    calculate_disk_rates(elapsed, parsed, prev, entries);
+    calculate_disk_rates(elapsed, parsed, prev, max_rates, entries);
 }
 
 /// Poll interval for system metric collection (default 3000ms, configurable via first argument in milliseconds)
@@ -52,22 +56,6 @@ fn get_poll_interval() -> Duration {
         .unwrap_or(3000);
     Duration::from_millis(millis)
 }
-/// Path to /proc/stat for CPU metrics
-const PROC_STAT_PATH: &str = "/proc/stat";
-/// Path to /proc/meminfo for memory metrics
-const MEMINFO_PATH: &str = "/proc/meminfo";
-/// Path to /proc/net/dev for network metrics
-const NET_DEV_PATH: &str = "/proc/net/dev";
-/// Path to /proc/diskstats for disk metrics
-const DISKSTATS_PATH: &str = "/proc/diskstats";
-/// Initial capacity for JSON payload buffer
-const PAYLOAD_CAPACITY: usize = 4096;
-/// Reference bandwidth for network level calculation (125 Mbps)
-const NET_REF_BPS: f64 = 125_000_000.0;
-/// Reference bandwidth for disk level calculation (600 Mbps)
-const DISK_REF_BPS: f64 = 600_000_000.0;
-/// Disk sector size in bytes
-const DISK_SECTOR_SIZE: u64 = 512;
 
 #[derive(Clone, Copy)]
 /// CPU counter values from /proc/stat (user, nice, system, idle, etc.)
@@ -149,7 +137,9 @@ fn main() -> io::Result<()> {
     // Max 256 cores, usually ~16. Much faster than String-keyed HashMap
     let mut cpu_prev: Vec<Option<CpuCounters>> = vec![None; 64];
     let mut net_prev: HashMap<&'static str, NetCounters> = HashMap::with_capacity(16);
+    let mut net_max_rates: HashMap<&'static str, NetworkDeviceState> = HashMap::with_capacity(16);
     let mut disk_prev: HashMap<&'static str, DiskCounters> = HashMap::with_capacity(16);
+    let mut disk_max_rates: HashMap<&'static str, DiskDeviceState> = HashMap::with_capacity(16);
     let mut payload = String::with_capacity(PAYLOAD_CAPACITY);
     let mut cpu_entries = Vec::with_capacity(256);
     let mut net_entries = Vec::with_capacity(16);
@@ -188,12 +178,12 @@ fn main() -> io::Result<()> {
         
         net_entries.clear();
         let net_len = pread_file(net_fd, &mut net_buf)?;
-        collect_network(elapsed, &net_buf[..net_len], &mut net_prev, &mut net_entries);
+        collect_network(elapsed, &net_buf[..net_len], &mut net_prev, &mut net_max_rates, &mut net_entries);
         net_entries.sort_by(|a, b| a.iface.cmp(&b.iface));
         
         disk_entries.clear();
         let disk_len = pread_file(disk_fd, &mut disk_buf)?;
-        collect_disks(elapsed, &disk_buf[..disk_len], &mut disk_prev, &mut disk_entries);
+        collect_disks(elapsed, &disk_buf[..disk_len], &mut disk_prev, &mut disk_max_rates, &mut disk_entries);
         disk_entries.sort_by(|a, b| a.device.cmp(&b.device));
 
         build_payload(&mut payload, &cpu_entries, memory.as_ref(), &net_entries, &disk_entries);

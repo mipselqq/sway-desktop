@@ -1,6 +1,28 @@
 /// Disk I/O metrics collection
 use std::collections::HashMap;
-use crate::{DiskCounters, DiskEntry, DISK_SECTOR_SIZE, DISK_REF_BPS};
+use crate::{DiskCounters, DiskEntry, DISK_SECTOR_SIZE, constants::RATE_DECAY_TIME_SECS};
+
+/// State tracking for disk device rate limiting and validity
+#[derive(Clone, Copy)]
+pub struct DiskDeviceState {
+    /// Maximum rate seen so far
+    pub max_rate: f64,
+    /// Time since last rate >= max_rate / 2
+    pub time_below_half_max: f64,
+    /// Whether this device has ever had non-zero I/O
+    pub has_had_io: bool,
+}
+
+impl DiskDeviceState {
+    /// Create new device state with initial max rate of 1.0
+    pub fn new() -> Self {
+        DiskDeviceState {
+            max_rate: 1.0,
+            time_below_half_max: 0.0,
+            has_had_io: false,
+        }
+    }
+}
 
 /// Check if device name should be skipped (partitions and pseudo-devices)
 pub fn should_skip_device(name: &str) -> bool {
@@ -82,6 +104,7 @@ pub fn calculate_disk_rates(
     elapsed: f64,
     parsed: HashMap<&'static str, (u64, u64)>,
     prev: &mut HashMap<&'static str, DiskCounters>,
+    max_rates: &mut HashMap<&'static str, DiskDeviceState>,
     entries: &mut Vec<DiskEntry>,
 ) {
     let elapsed = elapsed.max(1e-8);
@@ -105,13 +128,41 @@ pub fn calculate_disk_rates(
         counters.read = read_sectors;
         counters.write = write_sectors;
         
-        entries.push(DiskEntry {
-            device: name.to_string(),
-            read_level: rate_to_level(read_rate, DISK_REF_BPS),
-            write_level: rate_to_level(write_rate, DISK_REF_BPS),
-            read_mib_s: read_rate / 1_048_576.0,
-            write_mib_s: write_rate / 1_048_576.0,
-        });
+        // Update device state
+        let state = max_rates.entry(name).or_insert(DiskDeviceState::new());
+        let combined_rate = read_rate.max(write_rate);
+        
+        // Mark as having I/O if rate > 0
+        if combined_rate > 0.0 {
+            state.has_had_io = true;
+        }
+        
+        // Update maximum and track time below half
+        if combined_rate > state.max_rate {
+            state.max_rate = combined_rate;
+            state.time_below_half_max = 0.0;
+        } else if combined_rate < state.max_rate / 2.0 {
+            state.time_below_half_max += elapsed;
+        } else {
+            state.time_below_half_max = 0.0;
+        }
+        
+        // Reset max to half if below half for RATE_DECAY_TIME_SECS
+        if state.time_below_half_max >= RATE_DECAY_TIME_SECS {
+            state.max_rate /= 2.0;
+            state.time_below_half_max = 0.0;
+        }
+        
+        // Only add entry if device has had I/O
+        if state.has_had_io {
+            entries.push(DiskEntry {
+                device: name.to_string(),
+                read_level: rate_to_level(read_rate, state.max_rate),
+                write_level: rate_to_level(write_rate, state.max_rate),
+                read_mib_s: read_rate / 1_048_576.0,
+                write_mib_s: write_rate / 1_048_576.0,
+            });
+        }
     }
 }
 
@@ -254,21 +305,24 @@ mod tests {
 
     #[test]
     fn test_rate_to_level_zero() {
-        assert_eq!(rate_to_level(0.0, DISK_REF_BPS), 0);
+        assert_eq!(rate_to_level(0.0, 600_000_000.0), 0);
     }
 
     #[test]
     fn test_rate_to_level_reference() {
-        assert_eq!(rate_to_level(DISK_REF_BPS, DISK_REF_BPS), 10);
+        let reference = 600_000_000.0;
+        assert_eq!(rate_to_level(reference, reference), 10);
     }
 
     #[test]
     fn test_rate_to_level_quarter() {
-        assert_eq!(rate_to_level(DISK_REF_BPS / 4.0, DISK_REF_BPS), 3);
+        let reference = 600_000_000.0;
+        assert_eq!(rate_to_level(reference / 4.0, reference), 3);
     }
 
     #[test]
     fn test_rate_to_level_over_reference() {
-        assert_eq!(rate_to_level(DISK_REF_BPS * 10.0, DISK_REF_BPS), 10);
+        let reference = 600_000_000.0;
+        assert_eq!(rate_to_level(reference * 10.0, reference), 10);
     }
 }
