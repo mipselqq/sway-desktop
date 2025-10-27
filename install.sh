@@ -45,7 +45,7 @@ update_mirrorlist() {
 	      --save /etc/pacman.d/mirrorlist
 }
 
-CAT_DE="sway waybar kitty rofi copyq qt6ct gammastep geoclue grim slurp wayfreeze xdg-desktop-portal
+CAT_DE="sway eww kitty rofi copyq qt6ct gammastep geoclue grim slurp wayfreeze xdg-desktop-portal
        xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr"
 
 CAT_APPS="qbittorrent firefox telegram-desktop discord apidog-bin"
