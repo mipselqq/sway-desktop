@@ -51,12 +51,7 @@ fn process_cpu_line(line: &[u8], prev: &mut [Option<CpuCounters>], entries: &mut
     
     prev[cpu_idx] = Some(CpuCounters { total, idle });
     
-    // Build cpu ID string manually without format! macro overhead
-    let mut cpu_id = String::with_capacity(8);
-    cpu_id.push_str("cpu");
-    itoa_usize(&mut cpu_id, cpu_idx);
-    
-    entries.push(CpuEntry { id: cpu_id, usage });
+    entries.push(CpuEntry { usage });
 }
 
 /// Parse total and idle ticks from CPU line
@@ -105,22 +100,6 @@ fn calculate_cpu_usage(prev: Option<CpuCounters>, total: u64, idle: u64) -> u32 
     (100 * active / total_diff) as u32
 }
 
-#[inline]
-fn itoa_usize(s: &mut String, mut n: usize) {
-    if n == 0 {
-        s.push('0');
-        return;
-    }
-    let mut buf = [b'0'; 20];
-    let mut i = 20;
-    while n > 0 {
-        i -= 1;
-        buf[i] = b'0' + (n % 10) as u8;
-        n /= 10;
-    }
-    s.push_str(unsafe { std::str::from_utf8_unchecked(&buf[i..]) });
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,8 +138,6 @@ mod tests {
         collect_cpu(data, &mut prev, &mut entries);
 
         assert_eq!(entries.len(), 2);
-        assert_eq!(entries[0].id, "cpu0");
-        assert_eq!(entries[1].id, "cpu1");
         assert!(entries.iter().all(|entry| entry.usage <= 100));
     }
 

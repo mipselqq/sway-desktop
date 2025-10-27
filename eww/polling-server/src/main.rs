@@ -88,8 +88,6 @@ struct DiskCounters {
 
 /// CPU metric entry for output
 struct CpuEntry {
-    /// CPU identifier (e.g., "cpu0", "cpu1")
-    id: String,
     /// Usage percentage (0-100)
     usage: u32,
 }
@@ -320,17 +318,13 @@ fn build_payload(
     out.clear();
     out.reserve(PAYLOAD_CAPACITY);
     
-    // Extreme optimization: pre-write static strings, use itoa for numbers
+    // CPU format: array of usage values indexed by cpu core number
     out.push_str("{\"c\":[");
     for (idx, entry) in cpu.iter().enumerate() {
         if idx > 0 {
             out.push(',');
         }
-        out.push_str("[\"");
-        out.push_str(&entry.id);
-        out.push_str("\",");
         itoa_u32(out, entry.usage);
-        out.push(']');
     }
     out.push_str("],\"m\":");
     if let Some(mem) = memory {

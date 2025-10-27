@@ -11,7 +11,7 @@ pub const NET_DEV_PATH: &str = "/proc/net/dev";
 pub const DISKSTATS_PATH: &str = "/proc/diskstats";
 
 /// Initial capacity for JSON payload buffer
-pub const PAYLOAD_CAPACITY: usize = 270;
+pub const PAYLOAD_CAPACITY: usize = 110;
 
 /// Disk sector size in bytes
 pub const DISK_SECTOR_SIZE: u64 = 512;
