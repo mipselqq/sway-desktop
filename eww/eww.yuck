@@ -7,15 +7,16 @@
 (deflisten workspaces "./workspaces")
 
 ;; Helper: Build CPU tooltip content from cores array
+;; Cores array: [cpu0%, cpu1%, cpu2%, ...]
 (defwidget cpu_tooltip [cores]
   (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (for core in cores
-      (label :text "${core[0]}: ${core[1]}%" :class "tooltip-cpu-${round(core[1] / 10, 0)}"))))
+    (for (i, val) in (map-indexed (fn [i val] (list i val)) cores)
+      (label :text "cpu${i}: ${val}%" :class "tooltip-cpu-${round(val / 10, 0)}"))))
 
 ;; Helper: Build Network tooltip content from net_entries array
 (defwidget network_tooltip [net_entries]
   (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (for entry in net_entries
+    (for entry in {net_entries}
       (box :orientation "v" :space-evenly false
         (label :text "${entry[0]}")
         (label :text "  ↓ ${round(entry[4], 1)} MiB/s  ↑ ${round(entry[3], 1)} MiB/s" :class "tooltip-sub")))))
@@ -23,24 +24,31 @@
 ;; Helper: Build Disk tooltip content from disk_entries array
 (defwidget disk_tooltip [disk_entries]
   (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (for entry in disk_entries
+    (for entry in {disk_entries}
       (box :orientation "v" :space-evenly false
         (label :text "${entry[0]}")
         (label :text "  R: ${round(entry[3], 1)} MiB/s  W: ${round(entry[4], 1)} MiB/s" :class "tooltip-sub")))))
+
+;; Helper: Build Temperature tooltip content
+(defwidget temp_tooltip [temp]
+  (box :orientation "v" :space-evenly false :class "tooltip-content"
+    (label :text "${temp}°C")))
 
 (defwidget metrics_bars [cores net_entries disk_entries mem temp]
   ;; Monolithic widget for all bar metrics with per-character coloring
   ;; Combines CPU, network, disk, and memory into single optimized widget
   (box :orientation "h" :spacing 2 :space-evenly false :class "metrics-monolith"
-    ;; Temperature indicator
-    (label :class "metric-bar temp-grad-${round((temp - 20) / 5, 0)}"
-           :text "▌")
+    ;; Temperature indicator wrapped in tooltip
+    (tooltip
+      (temp_tooltip :temp temp)
+      (label :class "metric-bar temp-grad-${round((temp - 20) / 5, 0)}"
+             :text "▌"))
     ;; CPU cores section wrapped in tooltip
     (tooltip
       (cpu_tooltip :cores cores)
       (box :orientation "h" :spacing -3 :space-evenly false
-        (for core in cores
-          (label :class "metric-bar cpu-grad-${round(core[1] / 10, 0)}"
+        (for core in {cores}
+          (label :class "metric-bar cpu-grad-${round(core / 10, 0)}"
                  :text "▌"))))
     ;; Network interfaces section wrapped in tooltip
     (tooltip
