@@ -10,8 +10,23 @@
 ;; Cores array: [cpu0%, cpu1%, cpu2%, ...]
 (defwidget cpu_tooltip [cores]
   (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (for (i, val) in (map-indexed (fn [i val] (list i val)) cores)
-      (label :text "cpu${i}: ${val}%" :class "tooltip-cpu-${round(val / 10, 0)}"))))
+    (label :text "cpu0: ${cores[0]}%" :class "tooltip-cpu-${round(cores[0] / 10, 0)}")
+    (label :text "cpu1: ${cores[1]}%" :class "tooltip-cpu-${round(cores[1] / 10, 0)}")
+    (label :text "cpu2: ${cores[2]}%" :class "tooltip-cpu-${round(cores[2] / 10, 0)}")
+    (label :text "cpu3: ${cores[3]}%" :class "tooltip-cpu-${round(cores[3] / 10, 0)}")
+    (label :text "cpu4: ${cores[4]}%" :class "tooltip-cpu-${round(cores[4] / 10, 0)}")
+    (label :text "cpu5: ${cores[5]}%" :class "tooltip-cpu-${round(cores[5] / 10, 0)}")
+    (label :text "cpu6: ${cores[6]}%" :class "tooltip-cpu-${round(cores[6] / 10, 0)}")
+    (label :text "cpu7: ${cores[7]}%" :class "tooltip-cpu-${round(cores[7] / 10, 0)}")
+    (label :text "cpu8: ${cores[8]}%" :class "tooltip-cpu-${round(cores[8] / 10, 0)}")
+    (label :text "cpu9: ${cores[9]}%" :class "tooltip-cpu-${round(cores[9] / 10, 0)}")
+    (label :text "cpu10: ${cores[10]}%" :class "tooltip-cpu-${round(cores[10] / 10, 0)}")
+    (label :text "cpu11: ${cores[11]}%" :class "tooltip-cpu-${round(cores[11] / 10, 0)}")
+    (label :text "cpu12: ${cores[12]}%" :class "tooltip-cpu-${round(cores[12] / 10, 0)}")
+    (label :text "cpu13: ${cores[13]}%" :class "tooltip-cpu-${round(cores[13] / 10, 0)}")
+    (label :text "cpu14: ${cores[14]}%" :class "tooltip-cpu-${round(cores[14] / 10, 0)}")
+    (label :text "cpu15: ${cores[15]}%" :class "tooltip-cpu-${round(cores[15] / 10, 0)}")
+  ))
 
 ;; Helper: Build Network tooltip content from net_entries array
 (defwidget network_tooltip [net_entries]
