@@ -3,14 +3,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::fs::File;
 
-/// Try to read a temperature file and return value in Celsius
-fn read_temp_file(path: &Path) -> Option<u32> {
-    let content = fs::read_to_string(path).ok()?;
-    let millidegrees = content.trim().parse::<u32>().ok()?;
-    let temp = millidegrees / 1000;
-    Some(temp)
-}
-
 /// Get label for a temperature sensor (e.g., "Package id 0", "Core 0", etc.)
 fn get_temp_label(hwmon_path: &Path, temp_index: u32) -> Option<String> {
     let label_path = hwmon_path.join(format!("temp{}_label", temp_index));
@@ -114,25 +106,6 @@ fn find_thermal_temp() -> Option<PathBuf> {
         }
     }
     None
-}
-
-/// Read CPU temperature from hwmon devices and return in Celsius (0-100+)
-/// DEPRECATED: Use init_temperature() and read_temperature_from_fd() instead
-pub fn collect_temperature() -> u32 {
-    let Some(temp_path) = find_temp_file_path() else {
-        return 0;
-    };
-    
-    let Ok(content) = fs::read_to_string(&temp_path) else {
-        return 0;
-    };
-    
-    let Ok(millidegrees) = content.trim().parse::<u32>() else {
-        return 0;
-    };
-    
-    let temp = millidegrees / 1000;
-    if temp > 0 { temp } else { 0 }
 }
 
 /// Read temperature from already-open file descriptor using pread
