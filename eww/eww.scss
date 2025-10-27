@@ -98,20 +98,48 @@ window {
   color: #ffffff;
 }
 
+.modules-right button {
+  margin-right: 8px;
+}
+
 .systray {
   min-height: 18px;
+  margin-right: 8px;
 }
 
 .systray image,
 .systray .tray-icon {
   margin: 0 3px;
 }
+.metric.volume {
+  margin-right: 4px;
+  color: #d4a574;
+}
+
+.metric.battery {
+  margin-right: 8px;
+  color: #7ec97e;
+}
+
+.metric.lang {
+  margin-right: 8px;
+  color: #7eb3d4;
+}
+
 .metric.clock {
   margin-right: 16px;
 }
 
-.metric.mem {
+.metric {
+  font-family: "Courier New", monospace;
+}
+
+.metrics-monolith {
   margin-right: 8px;
+}
+
+.metric.mem {
+  margin-right: 4px;
 }
 
 .metric.mem-counter {
@@ -119,12 +147,7 @@ window {
   font-size: 13px;
 }
 
-.metric.volume {
-  margin-right: 8px;
-}
-
 .mem-bar-0 { color: #1a3d2e; }
-.mem-bar-1 { color: #1f4d38; }
 .mem-bar-2 { color: #245d42; }
 .mem-bar-3 { color: #298d4c; }
 .mem-bar-4 { color: #2ea856; }

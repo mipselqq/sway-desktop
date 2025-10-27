@@ -65,12 +65,12 @@
 
 (defwidget metrics_right []
   ;; Aggregate all metrics on the right side
-  (box :class "modules-right" :halign "end" :spacing 2 :space-evenly false
+  (box :class "modules-right" :halign "end" :spacing 0 :space-evenly false
     (metrics_bars :cores {metrics["c"]} :net_entries {metrics["n"]} :disk_entries {metrics["d"]} :mem {metrics["m"]})
     (button :onclick "pavucontrol &"
-      (label :text "${volume}" :class "metric volume"))
+      (label :text "v${volume}" :class "metric volume"))
+    (label :text "b${battery}" :class "metric battery" :visible battery_visible)
     (label :text "${layout}" :class "metric lang")
-    (label :text "${battery}%" :class "metric battery" :visible battery_visible)
     (systray :class "systray" :icon-size 20)
     (label :text "${time}" :class "metric clock")))
 

@@ -2,6 +2,6 @@
 BATTERY_PATH=$(upower -e | grep 'BAT' | head -n 1)
 
 if [ -n "$BATTERY_PATH" ]; then
-    upower -i "$BATTERY_PATH" | awk '/percentage/ {print $2}'
+    upower -i "$BATTERY_PATH" | awk '/percentage/ {gsub(/%/, ""); print $2}'
 fi
 

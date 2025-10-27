@@ -4,7 +4,7 @@ show_volume() {
     if pamixer --get-mute | grep -q true; then
         echo "_"
     else
-        echo "$(pamixer --get-volume)%"
+        echo "$(pamixer --get-volume)"
     fi
 }
 
