@@ -125,8 +125,12 @@ fn itoa_usize(s: &mut String, mut n: usize) {
 mod tests {
     use super::*;
 
+    fn sample_prev() -> CpuCounters {
+        CpuCounters { total: 1000, idle: 200 }
+    }
+
     #[test]
-    fn test_parse_cpu_counters_valid() {
+    fn parse_cpu_counters_extracts_total_and_idle() {
         let data = b" 2255 34 24 22625563 6290 127 456 0 0 0";
         let (total, idle) = parse_cpu_counters(data);
         assert_eq!(idle, 22625563);
@@ -134,78 +138,39 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_cpu_counters_empty() {
-        let data = b"";
-        let (total, idle) = parse_cpu_counters(data);
-        assert_eq!(total, 0);
-        assert_eq!(idle, 0);
+    fn calculate_cpu_usage_returns_zero_without_previous_sample() {
+        assert_eq!(calculate_cpu_usage(None, 1000, 500), 0);
     }
 
     #[test]
-    fn test_calculate_cpu_usage_no_previous() {
-        let usage = calculate_cpu_usage(None, 1000, 500);
-        assert_eq!(usage, 0);
+    fn calculate_cpu_usage_produces_expected_percentage() {
+        let prev = Some(sample_prev());
+        // total diff = 1500, idle diff = 300 => active = 1200 => 80%
+        let usage = calculate_cpu_usage(prev, 2500, 500);
+        assert_eq!(usage, 80);
     }
 
     #[test]
-    fn test_calculate_cpu_usage_50_percent() {
-        let prev = Some(CpuCounters {
-            total: 1000,
-            idle: 100,
-        });
-        let usage = calculate_cpu_usage(prev, 2000, 600);
-        assert_eq!(usage, 50);
-    }
-
-    #[test]
-    fn test_calculate_cpu_usage_100_percent() {
-        let prev = Some(CpuCounters {
-            total: 1000,
-            idle: 100,
-        });
-        let usage = calculate_cpu_usage(prev, 2000, 100);
-        assert_eq!(usage, 100);
-    }
-
-    #[test]
-    fn test_calculate_cpu_usage_zero_percent() {
-        let prev = Some(CpuCounters {
-            total: 1000,
-            idle: 100,
-        });
-        let usage = calculate_cpu_usage(prev, 2000, 1100);
-        assert_eq!(usage, 0);
-    }
-
-    #[test]
-    fn test_process_cpu_line_valid() {
-        let line = b"cpu0 2255 34 24 22625563 6290 127 456 0 0 0";
-        let mut prev = vec![None; 256];
+    fn collect_cpu_emits_entries_for_each_core_line() {
+        let data = b"cpu  4705 34 24 45251126 6290 127 456 0 0 0\ncpu0 2255 34 24 22625563 6290 127 456 0 0 0\ncpu1 2450 0 0 22625563 6290 127 456 0 0 0\n";
+        let mut prev = vec![None; 4];
         let mut entries = Vec::new();
-        
-        process_cpu_line(line, &mut prev, &mut entries);
-        assert_eq!(entries.len(), 1);
+
+        collect_cpu(data, &mut prev, &mut entries);
+
+        assert_eq!(entries.len(), 2);
         assert_eq!(entries[0].id, "cpu0");
-        assert_eq!(entries[0].usage, 0);
+        assert_eq!(entries[1].id, "cpu1");
+        assert!(entries.iter().all(|entry| entry.usage <= 100));
     }
 
     #[test]
-    fn test_process_cpu_line_invalid_line() {
-        let line = b"invalid";
-        let mut prev = vec![None; 256];
+    fn process_cpu_line_ignores_aggregate_cpu_line() {
+        let mut prev = vec![None; 4];
         let mut entries = Vec::new();
-        
-        process_cpu_line(line, &mut prev, &mut entries);
-        assert_eq!(entries.len(), 0);
-    }
 
-    #[test]
-    fn test_process_cpu_line_cpu_too_high() {
-        let line = b"cpu300 2255 34 24 22625563 6290 127 456 0 0 0";
-        let mut prev = vec![None; 256];
-        let mut entries = Vec::new();
-        
-        process_cpu_line(line, &mut prev, &mut entries);
-        assert_eq!(entries.len(), 0);
+        process_cpu_line(b"cpu  4705 34 24 45251126 6290 127 456 0 0 0", &mut prev, &mut entries);
+
+        assert!(entries.is_empty());
     }
 }

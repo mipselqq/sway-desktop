@@ -13,11 +13,13 @@ mod memory;
 mod network;
 mod disk;
 mod constants;
+mod temperature;
 
 use cpu::collect_cpu;
 use memory::collect_memory;
 use network::{parse_network, calculate_network_rates, NetworkDeviceState};
 use disk::{parse_disks, calculate_disk_rates, DiskDeviceState};
+use temperature::collect_temperature;
 use constants::*;
 
 /// Collect network statistics: parse and calculate rates.
@@ -186,7 +188,8 @@ fn main() -> io::Result<()> {
         collect_disks(elapsed, &disk_buf[..disk_len], &mut disk_prev, &mut disk_max_rates, &mut disk_entries);
         disk_entries.sort_by(|a, b| a.device.cmp(&b.device));
 
-        build_payload(&mut payload, &cpu_entries, memory.as_ref(), &net_entries, &disk_entries);
+        let temp = collect_temperature();
+        build_payload(&mut payload, &cpu_entries, memory.as_ref(), &net_entries, &disk_entries, temp);
 
         if let Err(err) = write_payload(&payload) {
             if err.kind() == io::ErrorKind::BrokenPipe {
@@ -302,6 +305,7 @@ fn build_payload(
     memory: Option<&MemoryEntry>,
     network: &[NetworkEntry],
     disks: &[DiskEntry],
+    temp: u32,
 ) {
     out.clear();
     out.reserve(PAYLOAD_CAPACITY);
@@ -365,7 +369,9 @@ fn build_payload(
         ftoa_f64(out, entry.write_mib_s, 2);
         out.push(']');
     }
-    out.push_str("]}");
+    out.push_str("],\"t\":");
+    itoa_u32(out, temp);
+    out.push('}');
 }
 
 /// Write JSON payload to stdout with newline.

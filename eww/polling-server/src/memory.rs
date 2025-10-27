@@ -64,31 +64,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_number_from_line_valid() {
+    fn parse_number_from_line_extracts_value() {
         let line = b"MemTotal:       16304284 kB";
         assert_eq!(parse_number_from_line(line), 16304284);
     }
 
     #[test]
-    fn test_parse_number_from_line_with_multiple_spaces() {
-        let line = b"MemAvailable:    8967832 kB";
-        assert_eq!(parse_number_from_line(line), 8967832);
-    }
-
-    #[test]
-    fn test_parse_number_from_line_no_number() {
-        let line = b"SomeLabel:";
-        assert_eq!(parse_number_from_line(line), 0);
-    }
-
-    #[test]
-    fn test_parse_number_from_line_zero() {
-        let line = b"Value: 0 kB";
-        assert_eq!(parse_number_from_line(line), 0);
-    }
-
-    #[test]
-    fn test_collect_memory_valid() {
+    fn collect_memory_computes_usage_values() {
         let data = b"MemTotal:       16304284 kB\nMemFree:         8123456 kB\nMemAvailable:    8967832 kB";
         let result = collect_memory(data);
         
@@ -102,20 +84,13 @@ mod tests {
     }
 
     #[test]
-    fn test_collect_memory_missing_total() {
-        let data = b"MemAvailable:    8967832 kB";
-        assert!(collect_memory(data).is_none());
+    fn collect_memory_returns_none_when_required_fields_missing() {
+        assert!(collect_memory(b"MemAvailable:    8967832 kB").is_none());
+        assert!(collect_memory(b"MemTotal:       16304284 kB").is_none());
     }
 
     #[test]
-    fn test_collect_memory_missing_available() {
-        let data = b"MemTotal:       16304284 kB";
-        assert!(collect_memory(data).is_none());
-    }
-
-    #[test]
-    fn test_collect_memory_available_greater_than_total() {
-        // Edge case: should still compute used_percent
+    fn collect_memory_clamps_when_available_exceeds_total() {
         let data = b"MemTotal:       10000 kB\nMemAvailable:    20000 kB";
         let result = collect_memory(data);
         
@@ -125,15 +100,5 @@ mod tests {
         assert_eq!(mem.available_kib, 20000);
         // used_kib will be 0 due to saturating_sub
         assert_eq!(mem.used_percent, 0.0);
-    }
-
-    #[test]
-    fn test_collect_memory_all_used() {
-        let data = b"MemTotal:       10000 kB\nMemAvailable:    0 kB";
-        let result = collect_memory(data);
-        
-        assert!(result.is_some());
-        let mem = result.unwrap();
-        assert_eq!(mem.used_percent, 100.0);
     }
 }

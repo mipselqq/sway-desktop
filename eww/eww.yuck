@@ -28,10 +28,13 @@
         (label :text "${entry[0]}")
         (label :text "  R: ${round(entry[3], 1)} MiB/s  W: ${round(entry[4], 1)} MiB/s" :class "tooltip-sub")))))
 
-(defwidget metrics_bars [cores net_entries disk_entries mem]
+(defwidget metrics_bars [cores net_entries disk_entries mem temp]
   ;; Monolithic widget for all bar metrics with per-character coloring
   ;; Combines CPU, network, disk, and memory into single optimized widget
   (box :orientation "h" :spacing 2 :space-evenly false :class "metrics-monolith"
+    ;; Temperature indicator
+    (label :class "metric-bar temp-grad-${round((temp - 20) / 5, 0)}"
+           :text "▌")
     ;; CPU cores section wrapped in tooltip
     (tooltip
       (cpu_tooltip :cores cores)
@@ -66,7 +69,7 @@
 (defwidget metrics_right []
   ;; Aggregate all metrics on the right side
   (box :class "modules-right" :halign "end" :spacing 0 :space-evenly false
-    (metrics_bars :cores {metrics["c"]} :net_entries {metrics["n"]} :disk_entries {metrics["d"]} :mem {metrics["m"]})
+    (metrics_bars :cores {metrics["c"]} :net_entries {metrics["n"]} :disk_entries {metrics["d"]} :mem {metrics["m"]} :temp {metrics["t"]})
     (button :onclick "pavucontrol &"
       (label :text "v${volume}" :class "metric volume"))
     (label :text "b${battery}" :class "metric battery" :visible battery_visible)
