@@ -19,7 +19,7 @@ use cpu::collect_cpu;
 use memory::collect_memory;
 use network::{parse_network, calculate_network_rates, NetworkDeviceState};
 use disk::{parse_disks, calculate_disk_rates, DiskDeviceState};
-use temperature::collect_temperature;
+use temperature::{init_temperature, read_temperature_from_fd};
 use constants::*;
 
 /// Collect network statistics: parse and calculate rates.
@@ -166,6 +166,16 @@ fn main() -> io::Result<()> {
     let net_fd = net_file.as_raw_fd();
     let disk_fd = disk_file.as_raw_fd();
 
+    // Initialize temperature file - find it ONCE at startup
+    let (temp_file, mut temp_buf) = init_temperature()
+        .unwrap_or_else(|| {
+            // Fallback: create dummy file and buffer if temp file not found
+            // This allows the program to continue without temperature support
+            let dummy = File::open("/dev/null").unwrap();
+            (dummy, vec![0u8; 64])
+        });
+    let temp_fd = temp_file.as_raw_fd();
+
     loop {
         let loop_start = Instant::now();
         let elapsed = loop_start.duration_since(last_instant).as_secs_f64();
@@ -188,7 +198,7 @@ fn main() -> io::Result<()> {
         collect_disks(elapsed, &disk_buf[..disk_len], &mut disk_prev, &mut disk_max_rates, &mut disk_entries);
         disk_entries.sort_by(|a, b| a.device.cmp(&b.device));
 
-        let temp = collect_temperature();
+        let temp = read_temperature_from_fd(temp_fd, &mut temp_buf);
         build_payload(&mut payload, &cpu_entries, memory.as_ref(), &net_entries, &disk_entries, temp);
 
         if let Err(err) = write_payload(&payload) {
