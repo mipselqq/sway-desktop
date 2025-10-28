@@ -103,7 +103,7 @@ conf_map=(
     "$SD/shells/fish:$HD/.config/fish"
     "$SD/etc/fonts.conf:/etc/fonts/fonts.conf"
     "$SD/etc/oomd.conf:/etc/systemd/oomd.conf"
-    "$SD/desktops/sway.desktop:$HD/usr/share/wayland-sessions/sway.desktop"
+    "$SD/desktops/sway.desktop:/usr/share/wayland-sessions/sway.desktop"
 )
 
 for conf in "${conf_map[@]}"; do
