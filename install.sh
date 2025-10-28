@@ -51,7 +51,7 @@ CAT_DE="sway eww kitty rofi copyq qt6ct gammastep geoclue grim slurp wayfreeze x
 CAT_APPS="qbittorrent firefox telegram-desktop discord apidog-bin"
 	 
 CAT_THEMING="qt6ct nwg-look breeze breeze-gtk"
-CAT_UTILS="wl-clipboard fzf fastfetch htop"
+CAT_UTILS="wl-clipboard fzf fastfetch btop jq awk"
 CAT_SHELL="fish fzf"
 CAT_BUILD="base-devel brightnessctl git"
 CAT_AUTH="libsecret"
@@ -60,7 +60,7 @@ CAT_FONTS="fontconfig freetype2 noto-fonts noto-fonts-cjk noto-fonts-extra ttf-l
 CAT_DURABILITY="snapper"
 CAT_VIRT="virt-manager qemu-desktop libvirt edk2-vmf dnsmasq"
 CAT_ARCHIEVES="tar 7zip unzip"
-CAT_MEDIA="pipwire pipewire-pulse aimp vlc pavucontrol"
+CAT_MEDIA="pipwire pipewire-pulse aimp vlc pavucontrol pamixer"
 CAT_COMPAT="xorg-xwayland"
 CAT_ANTIHUILO="zapret throne-bin"
 CAT_ALL="$CAT_DE $CAT_THEMING $CAT_UTILS $CAT_SHELL $CAT_BUILD $CAT_AUTH $CAT_DEV $CAT_FONTS\
