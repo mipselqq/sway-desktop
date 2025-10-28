@@ -50,12 +50,12 @@ CAT_DE="sway eww kitty rofi copyq qt6ct gammastep geoclue grim slurp wayfreeze x
 
 CAT_APPS="qbittorrent firefox telegram-desktop discord apidog-bin"
 	 
-CAT_THEMING="qt6ct breeze libadwaita"
+CAT_THEMING="qt6ct nwg-look breeze breeze-gtk"
 CAT_UTILS="wl-clipboard fzf fastfetch htop"
 CAT_SHELL="fish fzf"
 CAT_BUILD="base-devel brightnessctl git"
 CAT_AUTH="libsecret"
-CAT_DEV="git docker docker-compose rustup nodejs npm neovim vim ripgrep visual-studio-code-bin tokei"
+CAT_DEV="git docker docker-compose openssh rustup nodejs npm neovim vim ripgrep visual-studio-code-bin tokei bat"
 CAT_FONTS="fontconfig freetype2 noto-fonts noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-dejavu ttf-roboto ttf-fira-code"
 CAT_DURABILITY="snapper"
 CAT_VIRT="virt-manager qemu-desktop libvirt edk2-vmf dnsmasq"
@@ -69,13 +69,13 @@ CAT_ALL="$CAT_DE $CAT_THEMING $CAT_UTILS $CAT_SHELL $CAT_BUILD $CAT_AUTH $CAT_DE
 echo "INFO: installing packages"
 update_mirrorlist
 ensure_yay_installed
-rustup default stable
 
 echo "INFO: removing conflicting packages"
 pacman -R --noconfirm kddockwidgets-qt6 2>/dev/null || true
 
 sudo -u "$USER" yay -Suy --noconfirm
 sudo -u "$USER" yay -Su --noconfirm --needed $CAT_ALL
+rustup default stable
 
 mkdir_ln_fsn() {
     local src_file_path=$1
@@ -103,7 +103,7 @@ conf_map=(
     "$SD/shells/fish:$HD/.config/fish"
     "$SD/etc/fonts.conf:/etc/fonts/fonts.conf"
     "$SD/etc/oomd.conf:/etc/systemd/oomd.conf"
-    "$SD/desktops/sway.desktop:$HD/.local/share/wayland-sessions/sway.desktop"
+    "$SD/desktops/sway.desktop:$HD/usr/share/wayland-sessions/sway.desktop"
 )
 
 for conf in "${conf_map[@]}"; do
@@ -113,6 +113,7 @@ for conf in "${conf_map[@]}"; do
 done
 
 echo "INFO: enabling services"
+systemctl enable ly
 systemctl enable --now systemd-oomd
 
 echo "INFO: switching shell"
