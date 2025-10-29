@@ -1,4 +1,5 @@
 set $mod Alt
+set $winmod Super
 
 set $left j
 set $down k
@@ -11,6 +12,7 @@ set $menu rofi -show drun -cache-dir ~/.cache/rofi -threads 8
 set $screen_temp 6000
 set $explorer dolphin
 set $screenshot_command bash -c 'wayfreeze & PID=$!; sleep .01; grim -g "$(slurp)" - | wl-copy; kill $PID'
+set $browser firefox
 
 gaps inner 0
 gaps outer 0
@@ -54,14 +56,19 @@ input type:touchpad {
 floating_modifier $mod normal
 
 bindsym --to-code {
-    $mod+return exec $term
-    $mod+q kill
     $mod+d exec $menu
-    $mod+Shift+c reload
-    $mod+Shift+e swaymsg exit
     $mod+f1 exec $explorer
     $mod+f2 exec $explorer ~/Downloads
     $mod+p exec systemctl suspend
+    $mod+shift+p exec poweroff
+    $mod+shift+s exec $screenshot_command
+    $mod+x exec copyq show
+    $mod+z exec $browser
+    $winmod+z exec Telegram
+    $mod+return exec $term
+    $mod+q kill
+    $mod+Shift+c reload
+    $mod+Shift+e swaymsg exit
     $mod+$left focus left
     $mod+$down focus down
     $mod+$up focus up
@@ -82,7 +89,6 @@ bindsym --to-code {
     $mod+8 workspace number 8
     $mod+9 workspace number 9
     $mod+0 workspace number 10
-    $mod+z workspace number 99
 
     $mod+Shift+1 move container to workspace number 1
     $mod+Shift+2 move container to workspace number 2
@@ -114,8 +120,7 @@ bindsym --to-code {
     --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
     --locked XF86MonBrightnessDown exec brightnessctl set 5%-
     --locked XF86MonBrightnessUp exec brightnessctl set 5%+
-    $mod+shift+s exec $screenshot_command
-    $mod+x exec copyq show
+    
 }
 
 for_window [app_id="copyq"] floating enable
