@@ -1,3 +1,4 @@
+/* Global reset */
 * {
   all: unset;
   font-family: "Inter", sans-serif;
@@ -6,11 +7,13 @@
   min-height: 0;
 }
 
+/* Window */
 window {
   background-color: black;
   color: white;
 }
 
+/* Workspaces */
 .workspaces button {
   padding: 0 8px;
   color: #7f7f7f;
@@ -21,19 +24,21 @@ window {
   color: #ffffff;
 }
 
+/* Modules */
+.modules-left {
+  padding: 0;
+}
+
 .modules-right button {
   margin-right: 8px;
 }
 
-.systray {
-  min-height: 18px;
-  margin-right: 8px;
+/* Metrics */
+.metric {
+  font-family: "Fira Code", monospace;
+  font-weight: 700;
 }
 
-.systray image,
-.systray .tray-icon {
-  margin: 0 3px;
-}
 .metric.volume {
   color: #d4a574;
 }
@@ -52,16 +57,17 @@ window {
   margin-right: 16px;
 }
 
-.metric {
-  font-family: "Fira Code", monospace;
-  font-weight: 700;
+/* Systray */
+.systray {
+  min-height: 18px;
+  margin-right: 8px;
 }
 
-.modules-left {
-  padding: 0;
+.systray image,
+.systray .tray-icon {
+  margin: 0 3px;
 }
 
-/* Systray styling */
 .systray button {
   font-family: "Inter", sans-serif;
   font-weight: normal;
@@ -79,7 +85,7 @@ menu * {
   color: #e0e0e0;
   font-size: 12px;
   font-family: "Inter", sans-serif;
-  font-weight: normal;
+  font-weight: bold;
 }
 
 menu {
