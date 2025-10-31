@@ -1,2 +1,0 @@
-#!/bin/bash
-awk '/MemAvailable/ {printf "%d", $2/1024}' /proc/meminfo

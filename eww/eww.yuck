@@ -1,4 +1,3 @@
-(deflisten metrics "./polling-server/target/release/polling-server 150")
 (deflisten volume "./volume")
 (defpoll battery :interval "5s" "./battery")
 (deflisten layout  "./layout")
@@ -6,79 +5,9 @@
 (defpoll battery_visible :interval "5s" "[ -n \"$(./battery)\" ] && echo true || echo false")
 (deflisten workspaces "./workspaces")
 
-;; Helper: Build CPU tooltip content from cores array
-;; Cores array: [cpu0%, cpu1%, cpu2%, ...]
-(defwidget cpu_tooltip [cores]
-  (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (for core in {cores}
-      (label :text "${core}%"))))
-
-
-;; Helper: Build Network tooltip content from net_entries array
-(defwidget network_tooltip [net_entries]
-  (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (for entry in {net_entries}
-      (box :orientation "v" :space-evenly false
-        (label :text "${entry[0]}")
-        (label :text "  ↓ ${round(entry[4], 1)} MiB/s  ↑ ${round(entry[3], 1)} MiB/s" :class "tooltip-sub")))))
-
-;; Helper: Build Disk tooltip content from disk_entries array
-(defwidget disk_tooltip [disk_entries]
-  (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (for entry in {disk_entries}
-      (box :orientation "v" :space-evenly false
-        (label :text "${entry[0]}")
-        (label :text "  R: ${round(entry[3], 1)} MiB/s  W: ${round(entry[4], 1)} MiB/s" :class "tooltip-sub")))))
-
-;; Helper: Build Temperature tooltip content
-(defwidget temp_tooltip [temp]
-  (box :orientation "v" :space-evenly false :class "tooltip-content"
-    (label :text "${temp}°C")))
-
-(defwidget metrics_bars [cores net_entries disk_entries mem temp]
-  ;; Monolithic widget for all bar metrics with per-character coloring
-  ;; Combines CPU, network, disk, and memory into single optimized widget
-  (box :orientation "h" :spacing 2 :space-evenly false :class "metrics-monolith"
-    ;; Temperature indicator wrapped in tooltip
-    (tooltip
-      (temp_tooltip :temp temp)
-      (label :class "metric-bar temp-grad-${round((temp - 20) / 5, 0)}"
-             :text "▌"))
-    ;; CPU cores section wrapped in tooltip
-    (tooltip
-      (cpu_tooltip :cores cores)
-      (box :orientation "h" :spacing -3 :space-evenly false
-        (for core in {cores}
-          (label :class "metric-bar cpu-grad-${round(core / 10, 0)}"
-                 :text "▌"))))
-    ;; Network interfaces section wrapped in tooltip
-    (tooltip
-      (network_tooltip :net_entries net_entries)
-      (box :orientation "h" :spacing -3 :space-evenly false
-        (for entry in net_entries
-          (box :orientation "h" :spacing -3 :space-evenly false
-            (label :class "metric-bar net-recv-${entry[2]}"
-                   :text "▌")
-            (label :class "metric-bar net-send-${entry[1]}"
-                   :text "▌")))))
-    ;; Disk devices section wrapped in tooltip
-    (tooltip
-      (disk_tooltip :disk_entries disk_entries)
-      (box :orientation "h" :spacing -3 :space-evenly false
-        (for entry in disk_entries
-          (box :orientation "h" :spacing -3 :space-evenly false
-            (label :class "metric-bar disk-read-${entry[1]}"
-                   :text "▌")
-            (label :class "metric-bar disk-write-${entry[2]}"
-                   :text "▌")))))
-    ;; Memory section with counter and bar
-    (box :visible {length(mem) > 0} :orientation "h" :spacing 1 :space-evenly false
-      (label :text "${round(mem[1] / 1024, 0)}" :class "metric mem-counter"))))
-
 (defwidget metrics_right []
-  ;; Aggregate all metrics on the right side
+  ;; Aggregate modules on the right side
   (box :class "modules-right" :halign "end" :spacing 0 :space-evenly false
-    (metrics_bars :cores {metrics["c"]} :net_entries {metrics["n"]} :disk_entries {metrics["d"]} :mem {metrics["m"]} :temp {metrics["t"]})
     (button :onclick "pavucontrol &"
       (label :text "v${volume}" :class "metric volume"))
     (label :text "b${battery}" :class "metric battery" :visible battery_visible)
