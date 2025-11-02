@@ -53,8 +53,8 @@ bindsym --to-code {
     $mod+d exec $menu
     $mod+f1 exec $explorer
     $mod+f2 exec $explorer ~/Downloads
-    $mod+p exec systemctl suspend
-    $mod+shift+p exec poweroff
+    $mod+ctrl+shift+p exec systemctl suspend
+    $mod+ctrl+shift+o exec poweroff
     $mod+shift+s exec $screenshot_command
     $mod+x exec copyq show
     $mod+z exec $browser
