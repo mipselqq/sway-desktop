@@ -17,10 +17,12 @@ window {
 .workspaces button {
   padding: 0 8px;
   color: #7f7f7f;
+  min-height: 24px;
+  min-width: 35px;
 }
 
 .workspaces button.focused {
-  background-color: #333333;
+  background-color: #212121;
   color: #ffffff;
 }
 
