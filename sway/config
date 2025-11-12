@@ -60,6 +60,7 @@ bindsym --to-code {
     $mod+z exec $browser
     $winmod+z exec Telegram
     $mod+return exec $term
+    $mod+p exec $term btop
     $mod+q kill
     $mod+Shift+c reload
     $mod+Shift+e swaymsg exit
@@ -131,7 +132,9 @@ mode "resize" {
     }
 }
 
+
 exec_always eww open bar
+
 
 include /etc/sway/config.d/*
 
