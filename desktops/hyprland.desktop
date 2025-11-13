@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Hyprland
+Comment=Hyprland Wayland Compositor
+Exec=Hyprland
+TryExec=Hyprland
+Type=Application
+DesktopNames=Hyprland
+Keywords=wm;tiling;

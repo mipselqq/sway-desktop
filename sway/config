@@ -137,4 +137,3 @@ exec_always eww open bar
 
 
 include /etc/sway/config.d/*
-

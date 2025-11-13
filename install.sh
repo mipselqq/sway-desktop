@@ -45,8 +45,9 @@ update_mirrorlist() {
 	      --save /etc/pacman.d/mirrorlist
 }
 
-CAT_DE="sway eww kitty rofi copyq qt6ct gammastep geoclue grim slurp wayfreeze xdg-desktop-portal
-       xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr"
+CAT_DE="hyprland eww kitty rofi copyq qt6ct gammastep geoclue hypridle hyprlock hyprpaper hyprcursor
+    hyprpolkitagent hyprsunset hyprland-contrib grim slurp xdg-desktop-portal xdg-desktop-portal-gtk
+    xdg-desktop-portal-hyprland"
 
 CAT_APPS="qbittorrent firefox telegram-desktop discord apidog-bin"
 	 
@@ -60,7 +61,7 @@ CAT_FONTS="fontconfig freetype2 noto-fonts noto-fonts-cjk noto-fonts-extra ttf-l
 CAT_DURABILITY="snapper"
 CAT_VIRT="virt-manager qemu-desktop libvirt edk2-vmf dnsmasq"
 CAT_ARCHIEVES="tar 7zip unzip"
-CAT_MEDIA="pipwire pipewire-pulse aimp vlc pavucontrol pamixer"
+CAT_MEDIA="pipewire pipewire-pulse aimp vlc pavucontrol pamixer"
 CAT_COMPAT="xorg-xwayland"
 CAT_ANTIHUILO="zapret throne-bin"
 CAT_ALL="$CAT_DE $CAT_THEMING $CAT_UTILS $CAT_SHELL $CAT_BUILD $CAT_AUTH $CAT_DEV $CAT_FONTS\
@@ -98,12 +99,14 @@ echo "INFO: linking configs"
 
 conf_map=(
     "$SD/sway:$HD/.config/sway"
+    "$SD/hyprland-desktop/hypr:$HD/.config/hypr"
     "$SD/eww:$HD/.config/eww"
     "$SD/rofi:$HD/.config/rofi"
     "$SD/shells/fish:$HD/.config/fish"
     "$SD/etc/fonts.conf:/etc/fonts/fonts.conf"
     "$SD/etc/oomd.conf:/etc/systemd/oomd.conf"
     "$SD/desktops/sway.desktop:/usr/share/wayland-sessions/sway.desktop"
+    "$SD/desktops/hyprland.desktop:/usr/share/wayland-sessions/hyprland.desktop"
 )
 
 for conf in "${conf_map[@]}"; do
